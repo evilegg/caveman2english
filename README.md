@@ -82,3 +82,27 @@ For maximum token savings with acceptable fidelity, plain caveman+c2e remains th
 
 **Key insight:** don't strip semantic load-bearing words and expect the expander to recover them from context.
 Keep them in the encoded form, and reconstruction becomes a much easier problem.
+
+### Esperanto (`experiment/esperanto-encoding`)
+
+**Hypothesis:** encoding as terse Esperanto — a constructed language with no indefinite article, unambiguous modal conjugations (`devus` = should, `devas` = must, `eble` = might), and shorter causal conjunctions (`ĉar` = because) — achieves the same losslessness as RFC while offering better LLM compliance, since Esperanto is a real language with training data rather than a bespoke dialect the model has never seen.
+
+**Validation:** built a synthetic encoder that replaces English modals/conjunctions/quantifiers with Esperanto equivalents and converts technical nouns to Esperanto vocabulary, with a decoder that reverses the substitutions and passes the result to c2e.
+A four-metric benchmark (ROUGE-1, compression, modal recovery, causal recovery) was run against caveman and RFC on the same 20-entry corpus.
+The causal recovery metric was introduced here to specifically track whether `because`/`since` survive the round-trip — a known failure mode for caveman.
+
+**Conclusion:** Esperanto matches RFC on every fidelity metric with marginally better compression.
+
+| System        | ROUGE-1   | Compression | Modal recovery | Causal recovery |
+| ------------- | --------- | ----------- | -------------- | --------------- |
+| Caveman+c2e   | 83.0%     | 14.2%       | 92.5%          | 100.0%          |
+| UST+decoder   | 80.7%     | 4.7%        | 85.0%          | —               |
+| RFC+c2e       | **84.7%** | 3.5%        | **100.0%**     | **100.0%**      |
+| Esperanto+c2e | 84.4%     | **3.0%**    | **100.0%**     | **100.0%**      |
+
+Round-trips are clean and artifact-free.
+One entry (`cache-invalidation`) went negative on compression because Esperanto technical vocabulary (`kaŝmemoro`, `datumbazo`) is longer than the English abbreviations — the encoder should prefer abbreviations for known short forms.
+
+The practical case for Esperanto over RFC is not the numbers — they are nearly identical — but compliance.
+When a live LLM is given a system prompt, it is more likely to consistently produce correct Esperanto (a language it was trained on) than to consistently obey a custom "keep these English words, drop everything else" rule it has never seen.
+This is an empirical question that requires a live LLM benchmark to resolve.
