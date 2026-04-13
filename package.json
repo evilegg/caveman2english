@@ -10,6 +10,9 @@
   },
   "scripts": {
     "build": "tsc",
+    "build:exp": "tsc -p tsconfig.experiments.json",
+    "benchmark:fidelity": "tsc -p tsconfig.experiments.json && node dist-exp/experiments/fidelity/run.js",
+    "benchmark:ust": "tsc -p tsconfig.experiments.json && node dist-exp/experiments/ust/benchmark.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "tsc --noEmit"
