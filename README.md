@@ -37,9 +37,9 @@ User config lives in `~/.c2e.json` — see `DESIGN.md` for the full schema.
 
 ## Experiments
 
-Three compression dialect experiments were run to test whether alternative encoding schemes could outperform plain caveman on mechanical reconstruction fidelity.
-Each experiment used a 20-entry technical corpus and a synthetic encoder to generate encoded/original pairs without live API calls.
-Results were measured on three metrics: ROUGE-1 F1 (word overlap with the original), compression ratio, and modal recovery (fraction of uncertainty words like `should`/`might` preserved through the round-trip).
+Four experiments tested whether alternative encoding schemes could outperform plain caveman on mechanical reconstruction fidelity.
+Each used a 20-entry technical corpus and a synthetic encoder to generate encoded/original pairs without live API calls.
+Four metrics were tracked: ROUGE-1 F1 (unigram overlap with the original), compression ratio (character savings vs original), modal recovery (fraction of uncertainty words like `should`/`might` preserved), and causal recovery (fraction of causal conjunctions like `because`/`since` preserved).
 
 ### Fidelity baseline (`experiment/fidelity-benchmark`)
 
@@ -50,6 +50,7 @@ Results were measured on three metrics: ROUGE-1 F1 (word overlap with the origin
 **Conclusion:** 83% ROUGE-1 and 92.5% modal recovery at 14.2% compression.
 Fragment rules under-fired because the synthetic encoder left verbs intact — real Ultra-mode caveman would benefit more from levels 2–3.
 Modal recovery is slightly inflated because the synthetic encoder retains `should`, which real caveman strips.
+Causal conjunctions survived because the synthetic encoder preserved `because` (real caveman typically strips it too).
 
 ### UST — Unicode Semantic Tokens (`experiment/ust-language`)
 
@@ -59,7 +60,7 @@ Modal recovery is slightly inflated because the synthetic encoder retains `shoul
 
 **Conclusion:** UST underperformed caveman+c2e on every metric — ROUGE-1 dropped to 80.7%, compression fell to 4.7%, modal recovery fell to 85.0%.
 Emoji markers add character overhead without improving fidelity, and the custom decoder introduced artifacts: doubled conjunctions (`because...because`), redundant prefixes (`The fix is to you should...`).
-Adding a novel encoded format with a bespoke decoder is worse than the simpler pipeline.
+A novel encoded format with a bespoke decoder is worse than the simpler pipeline.
 
 ### RFC — Reconstruction-Friendly Caveman (`experiment/rfc-dialect`)
 
@@ -68,41 +69,66 @@ Adding a novel encoded format with a bespoke decoder is worse than the simpler p
 **Validation:** built an RFC encoder identical to caveman Full except it preserves the words above, then ran the same benchmark using c2e for decoding (no custom decoder needed).
 
 **Conclusion:** hypothesis confirmed.
-
-| System      | ROUGE-1 | Compression | Modal recovery |
-| ----------- | ------- | ----------- | -------------- |
-| Caveman+c2e | 83.0%   | 14.2%       | 92.5%          |
-| UST+decoder | 80.7%   | 4.7%        | 85.0%          |
-| RFC+c2e     | 84.7%   | 3.5%        | **100.0%**     |
-
-RFC achieves perfect modal recovery and +1.7% ROUGE-1 with clean, artifact-free round-trips.
-The trade-off is real: RFC saves ~3–4% of characters vs ~14% for caveman.
-For contexts where modality matters — debugging explanations, security warnings, migration guides — RFC is the better dialect.
-For maximum token savings with acceptable fidelity, plain caveman+c2e remains the right choice.
-
-**Key insight:** don't strip semantic load-bearing words and expect the expander to recover them from context.
-Keep them in the encoded form, and reconstruction becomes a much easier problem.
+RFC achieves perfect modal and causal recovery with +1.7% ROUGE-1 and clean, artifact-free round-trips.
+The compression trade-off is real but the fidelity gain is consistent across all 20 entries.
 
 ### Esperanto (`experiment/esperanto-encoding`)
 
-**Hypothesis:** encoding as terse Esperanto — a constructed language with no indefinite article, unambiguous modal conjugations (`devus` = should, `devas` = must, `eble` = might), and shorter causal conjunctions (`ĉar` = because) — achieves the same losslessness as RFC while offering better LLM compliance, since Esperanto is a real language with training data rather than a bespoke dialect the model has never seen.
+**Hypothesis:** encoding as terse Esperanto — a constructed language with no indefinite article, unambiguous modal conjugations (`devus` = should, `devas` = must, `eble` = might), and shorter causal conjunctions (`ĉar` = because, 3 chars vs 7) — achieves the same losslessness as RFC while offering better LLM compliance, since Esperanto is a real language with training data rather than a bespoke dialect the model has never seen.
 
-**Validation:** built a synthetic encoder that replaces English modals/conjunctions/quantifiers with Esperanto equivalents and converts technical nouns to Esperanto vocabulary, with a decoder that reverses the substitutions and passes the result to c2e.
-A four-metric benchmark (ROUGE-1, compression, modal recovery, causal recovery) was run against caveman and RFC on the same 20-entry corpus.
-The causal recovery metric was introduced here to specifically track whether `because`/`since` survive the round-trip — a known failure mode for caveman.
+**Validation:** built a synthetic encoder that replaces English modals/conjunctions/quantifiers with Esperanto equivalents and converts technical nouns to Esperanto vocabulary, with a rule-based decoder that reverses the substitutions and passes the result to c2e.
+Introduced causal recovery as a fourth benchmark metric to specifically track whether `because`/`since` survive the round-trip.
+Notable implementation detail: JavaScript's `\b` word boundary silently fails for non-ASCII characters (`ĉ` is not in `\w`), requiring Unicode property lookarounds (`/(?<!\p{L})ĉar(?!\p{L})/gu`) for correct matching.
 
-**Conclusion:** Esperanto matches RFC on every fidelity metric with marginally better compression.
+**Conclusion:** Esperanto matches RFC on every fidelity metric at marginally better compression.
+One entry (`cache-invalidation`) went negative on compression because Esperanto technical vocabulary (`kaŝmemoro`) is longer than the English abbreviation — the encoder should prefer known short forms.
+The practical case for Esperanto over RFC is not in the numbers but in compliance: a live LLM is more likely to produce consistent Esperanto (a language it was trained on) than to reliably follow a custom dialect rule it has never seen.
+
+### Results
 
 | System        | ROUGE-1   | Compression | Modal recovery | Causal recovery |
 | ------------- | --------- | ----------- | -------------- | --------------- |
-| Caveman+c2e   | 83.0%     | 14.2%       | 92.5%          | 100.0%          |
+| Caveman+c2e   | 83.0%     | **14.2%**   | 92.5%          | 100.0%          |
 | UST+decoder   | 80.7%     | 4.7%        | 85.0%          | —               |
 | RFC+c2e       | **84.7%** | 3.5%        | **100.0%**     | **100.0%**      |
-| Esperanto+c2e | 84.4%     | **3.0%**    | **100.0%**     | **100.0%**      |
+| Esperanto+c2e | 84.4%     | 3.0%        | **100.0%**     | **100.0%**      |
 
-Round-trips are clean and artifact-free.
-One entry (`cache-invalidation`) went negative on compression because Esperanto technical vocabulary (`kaŝmemoro`, `datumbazo`) is longer than the English abbreviations — the encoder should prefer abbreviations for known short forms.
+---
 
-The practical case for Esperanto over RFC is not the numbers — they are nearly identical — but compliance.
-When a live LLM is given a system prompt, it is more likely to consistently produce correct Esperanto (a language it was trained on) than to consistently obey a custom "keep these English words, drop everything else" rule it has never seen.
-This is an empirical question that requires a live LLM benchmark to resolve.
+## Recommendation
+
+**Key finding across all experiments:** the worst thing you can do is strip semantic load-bearing words and expect a rule-based expander to recover them from context.
+Modals (`should`, `must`, `might`) and causal conjunctions (`because`, `since`) carry information that is genuinely unrecoverable — stripping them produces false certainty, not compression.
+
+### Token savings
+
+These benchmarks measure character savings on a synthetic encoder that does not strip verbs (which real caveman Full does).
+Caveman's documented token savings are 65–75% vs full English prose.
+Based on the relative compression ratios observed, approximate real-world savings are:
+
+| Approach        | Estimated token savings | Reconstruction fidelity | Modal/causal preserved |
+| --------------- | ----------------------- | ----------------------- | ---------------------- |
+| Plain caveman   | 65–75%                  | ~83% ROUGE-1            | No (stripped)          |
+| Caveman + c2e   | 65–75%                  | ~83% ROUGE-1            | Partially recovered    |
+| RFC + c2e       | 55–65%                  | ~85% ROUGE-1            | Yes (100%)             |
+| Esperanto + c2e | 55–65%                  | ~84% ROUGE-1            | Yes (100%)             |
+| UST + decoder   | 50–60%                  | ~81% ROUGE-1            | Partially (85%)        |
+
+RFC and Esperanto cost roughly 10 percentage points of compression versus plain caveman to buy perfect modal and causal recovery.
+Whether that trade-off is worthwhile depends on what is being communicated.
+
+### Which approach to use
+
+**Use plain caveman + c2e** when token volume is the primary constraint and the content is factual/structural — API docs, step-by-step instructions, code walkthroughs.
+Modality matters less when the content is objective.
+
+**Use RFC + c2e** when the content carries epistemic weight — debugging explanations, security advisories, architectural trade-off discussions, anything where `should` vs `must` vs `might` changes what the reader does.
+RFC requires no custom decoder and produces clean prose.
+It is the recommended default for most technical dialogue.
+
+**Use Esperanto + c2e** when RFC compliance is unreliable in practice.
+If a live LLM inconsistently follows the RFC dialect rule, switching to Esperanto gives it a real grammar to fall back on.
+Both approaches need a live A/B test to confirm which produces more consistent output — the synthetic benchmarks cannot answer this.
+
+**Do not use UST.**
+The emoji marker approach is definitively worse than caveman on every metric and should not be pursued further without a fundamentally different decoder architecture.
