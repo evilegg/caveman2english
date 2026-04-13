@@ -3,6 +3,7 @@ import { abbreviationsRule } from "./rules/abbreviations.js";
 import { fragmentsRule } from "./rules/fragments.js";
 import { conjunctionsRule } from "./rules/conjunctions.js";
 import { punctuationRule } from "./rules/punctuation.js";
+import { ventilateRule } from "./rules/ventilate.js";
 import type { Rule } from "./types.js";
 
 // The ordered deterministic rule pipeline.
@@ -14,6 +15,7 @@ const RULES: Rule[] = [
   fragmentsRule,
   conjunctionsRule,
   punctuationRule,
+  ventilateRule,
 ];
 
 interface Segment {
