@@ -18,7 +18,13 @@
     "type": "git",
     "url": "git+https://github.com/evilegg/caveman2english.git"
   },
-  "keywords": ["caveman", "llm", "cli", "prose", "expander"],
+  "keywords": [
+    "caveman",
+    "llm",
+    "cli",
+    "prose",
+    "expander"
+  ],
   "author": "evilegg",
   "license": "MIT",
   "bugs": {
@@ -27,6 +33,7 @@
   "homepage": "https://github.com/evilegg/caveman2english#readme",
   "devDependencies": {
     "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
     "typescript": "^6.0.2",
     "vitest": "^4.1.4"
   },
