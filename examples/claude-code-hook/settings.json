@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node /path/to/caveman2english/examples/claude-code-hook/c2e-stop-hook.mjs"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -175,19 +175,20 @@ caveman2english/
 
 ## MVP Scope
 
-- [ ] Deterministic rule pipeline (all 7 rules)
-- [ ] CLI with `--backend none` (deterministic only)
-- [ ] Streaming stdin→stdout pipe
-- [ ] `--backend ollama` integration
-- [ ] `--backend claude` integration (haiku)
-- [ ] LLM auto-trigger by word count threshold
-- [ ] Tests for all rules + integration
-- [ ] `.claude/hooks` example config
+- [x] Deterministic rule pipeline (7 rules: arrows, abbreviations, fragments, conjunctions, articles, punctuation, ventilate)
+- [x] CLI with `--backend none` (deterministic only)
+- [x] Streaming stdin→stdout pipe
+- [x] `--backend ollama` integration
+- [x] `--backend claude` integration (haiku)
+- [x] LLM auto-trigger by word count threshold
+- [x] Tests for all rules + integration (89 passing)
+- [x] `.claude/hooks` example config (`examples/claude-code-hook/`)
 
 ## Future
 
-- Watch mode for Claude Code conversation logs
-- VS Code extension that translates inline
-- Configurable rule toggling (e.g. `--no-abbreviations`)
-- User-defined abbreviation overrides via `~/.c2e.json`
-- Wenyan-mode support (the classical Chinese variant of caveman)
+- [x] Configurable rule toggling (`--no-arrows`, `--no-abbreviations`, `--no-fragments`, `--no-conjunctions`, `--no-articles`, `--no-ventilate`)
+- [x] User-defined abbreviation overrides via `~/.c2e.json`
+- [x] Watch mode (`--watch <file>`) for conversation logs or any appended file
+- [x] Multiple fragment completion levels (`--fragment-level 0-3`)
+- [ ] VS Code extension that translates inline
+- [ ] Wenyan-mode support (the classical Chinese variant of caveman)

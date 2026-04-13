@@ -1,20 +1,27 @@
 import { arrowsRule } from "./rules/arrows.js";
-import { abbreviationsRule } from "./rules/abbreviations.js";
+import { createAbbreviationsRule } from "./rules/abbreviations.js";
 import { createFragmentsRule } from "./rules/fragments.js";
 import { conjunctionsRule } from "./rules/conjunctions.js";
+import { articlesRule } from "./rules/articles.js";
 import { punctuationRule } from "./rules/punctuation.js";
 import { ventilateRule } from "./rules/ventilate.js";
 import type { Rule, ExpandOptions } from "./types.js";
 
 function buildRules(opts?: Partial<ExpandOptions>): Rule[] {
-  return [
+  const disabled = opts?.disableRules ?? new Set<string>();
+  const extra = opts?.extraAbbreviations ?? {};
+
+  const all: Rule[] = [
     arrowsRule,
-    abbreviationsRule,
+    createAbbreviationsRule(extra),
     createFragmentsRule(opts?.fragmentLevel ?? 1),
     conjunctionsRule,
+    articlesRule,
     punctuationRule,
     ventilateRule,
   ];
+
+  return all.filter((r) => !disabled.has(r.name));
 }
 
 interface Segment {

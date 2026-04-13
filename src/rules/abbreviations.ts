@@ -69,30 +69,35 @@ const ABBREVS: Record<string, string> = {
 };
 
 // Build a regex that matches whole words only.
-// We match case-insensitively but restore the expansion with proper casing.
-const ABBREV_KEYS = Object.keys(ABBREVS).sort((a, b) => b.length - a.length); // longest first
-
 // Escape special regex chars in keys (e.g. "w/")
 function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-// Case-insensitive match. Expansion values are already the desired form (lowercase
-// prose, or preserved ALL-CAPS like "URL"). Capitalisation at sentence starts is
-// handled downstream by the punctuation rule.
-const ABBREV_RE = new RegExp(
-  `(?<=^|\\s|[([{])(${ABBREV_KEYS.map(escapeRegex).join("|")})(?=$|\\s|[)\\]},.:;!?])`,
-  "gi",
-);
-
-function expandAbbreviations(text: string): string {
-  return text.replace(ABBREV_RE, (match: string) => {
-    // Look up by original match, then lowercase fallback.
-    return ABBREVS[match] ?? ABBREVS[match.toLowerCase()] ?? match;
-  });
+function buildRegex(dict: Record<string, string>): RegExp {
+  const keys = Object.keys(dict).sort((a, b) => b.length - a.length); // longest first
+  if (keys.length === 0) return /(?!)/; // never-matching sentinel
+  return new RegExp(
+    `(?<=^|\\s|[([{])(${keys.map(escapeRegex).join("|")})(?=$|\\s|[)\\]},.:;!?])`,
+    "gi",
+  );
 }
 
+function expandWith(dict: Record<string, string>): (text: string) => string {
+  const re = buildRegex(dict);
+  return (text) =>
+    text.replace(re, (match: string) => dict[match] ?? dict[match.toLowerCase()] ?? match);
+}
+
+// Default rule using only the built-in dictionary.
 export const abbreviationsRule: Rule = {
   name: "abbreviations",
-  apply: expandAbbreviations,
+  apply: expandWith(ABBREVS),
 };
+
+// Factory: merge extra abbreviations on top of the built-in dictionary.
+export function createAbbreviationsRule(extra: Record<string, string> = {}): Rule {
+  if (Object.keys(extra).length === 0) return abbreviationsRule;
+  const merged = { ...ABBREVS, ...extra };
+  return { name: "abbreviations", apply: expandWith(merged) };
+}
