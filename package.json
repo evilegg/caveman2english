@@ -1,0 +1,36 @@
+{
+  "name": "caveman2english",
+  "version": "0.1.0",
+  "description": "Expand LLM caveman output into readable English prose",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "caveman2english": "dist/index.js",
+    "c2e": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evilegg/caveman2english.git"
+  },
+  "keywords": ["caveman", "llm", "cli", "prose", "expander"],
+  "author": "evilegg",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/evilegg/caveman2english/issues"
+  },
+  "homepage": "https://github.com/evilegg/caveman2english#readme",
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.4"
+  },
+  "dependencies": {
+    "commander": "^14.0.3"
+  }
+}
