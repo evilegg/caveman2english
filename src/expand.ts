@@ -1,22 +1,21 @@
 import { arrowsRule } from "./rules/arrows.js";
 import { abbreviationsRule } from "./rules/abbreviations.js";
-import { fragmentsRule } from "./rules/fragments.js";
+import { createFragmentsRule } from "./rules/fragments.js";
 import { conjunctionsRule } from "./rules/conjunctions.js";
 import { punctuationRule } from "./rules/punctuation.js";
 import { ventilateRule } from "./rules/ventilate.js";
-import type { Rule } from "./types.js";
+import type { Rule, ExpandOptions } from "./types.js";
 
-// The ordered deterministic rule pipeline.
-// Code fences and inline code spans are extracted before applying rules
-// and re-injected afterwards so they are never modified.
-const RULES: Rule[] = [
-  arrowsRule,
-  abbreviationsRule,
-  fragmentsRule,
-  conjunctionsRule,
-  punctuationRule,
-  ventilateRule,
-];
+function buildRules(opts?: Partial<ExpandOptions>): Rule[] {
+  return [
+    arrowsRule,
+    abbreviationsRule,
+    createFragmentsRule(opts?.fragmentLevel ?? 1),
+    conjunctionsRule,
+    punctuationRule,
+    ventilateRule,
+  ];
+}
 
 interface Segment {
   type: "text" | "code";
@@ -27,7 +26,6 @@ interface Segment {
 // Code fences (```...```) and inline code (`...`) are preserved verbatim.
 export function splitCodeSegments(text: string): Segment[] {
   const segments: Segment[] = [];
-  // Match fenced code blocks first, then inline code spans.
   const CODE_RE = /```[\s\S]*?```|`[^`\n]+`/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -47,13 +45,11 @@ export function splitCodeSegments(text: string): Segment[] {
   return segments;
 }
 
-// Rejoin segments back into a single string.
 function joinSegments(segments: Segment[]): string {
   return segments.map((s) => s.content).join("");
 }
 
-// Apply the deterministic rule pipeline to a plain-text segment.
-function applyRules(text: string, rules: Rule[] = RULES): string {
+function applyRules(text: string, rules: Rule[]): string {
   let out = text;
   for (const rule of rules) {
     out = rule.apply(out);
@@ -63,11 +59,12 @@ function applyRules(text: string, rules: Rule[] = RULES): string {
 
 // Expand caveman text deterministically.
 // Code blocks are passed through unchanged.
-export function expandDeterministic(text: string): string {
+export function expandDeterministic(text: string, opts?: Partial<ExpandOptions>): string {
+  const rules = buildRules(opts);
   const segments = splitCodeSegments(text);
   const processed = segments.map((seg) => {
     if (seg.type === "code") return seg;
-    return { ...seg, content: applyRules(seg.content) };
+    return { ...seg, content: applyRules(seg.content, rules) };
   });
   return joinSegments(processed);
 }

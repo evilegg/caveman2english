@@ -3,7 +3,7 @@ import { Command } from "commander";
 import { createInterface } from "readline";
 import { expandDeterministic, wordCount } from "./expand.js";
 import type { LlmBackend } from "./backends/base.js";
-import type { BackendName, ExpandOptions } from "./types.js";
+import type { BackendName, ExpandOptions, FragmentLevel } from "./types.js";
 
 const program = new Command();
 
@@ -37,6 +37,11 @@ program
     "Word count threshold for triggering LLM expansion",
     String(process.env["C2E_EXPAND_THRESHOLD"] ?? "300"),
   )
+  .option(
+    "-f, --fragment-level <n>",
+    "Fragment completion level: 0=off 1=conservative 2=moderate 3=aggressive",
+    String(process.env["C2E_FRAGMENT_LEVEL"] ?? "1"),
+  )
   .parse(process.argv);
 
 const opts = program.opts<{
@@ -45,6 +50,7 @@ const opts = program.opts<{
   url: string;
   expand: boolean;
   expandThreshold: string;
+  fragmentLevel: string;
 }>();
 
 const options: ExpandOptions = {
@@ -53,6 +59,7 @@ const options: ExpandOptions = {
   ollamaUrl: opts.url,
   expand: opts.expand,
   expandThreshold: parseInt(opts.expandThreshold, 10),
+  fragmentLevel: (parseInt(opts.fragmentLevel, 10) as FragmentLevel) ?? 1,
 };
 
 async function buildBackend(opts: ExpandOptions): Promise<LlmBackend | null> {
@@ -74,7 +81,7 @@ async function buildBackend(opts: ExpandOptions): Promise<LlmBackend | null> {
 
 async function processInput(input: string, backend: LlmBackend | null): Promise<string> {
   // Always apply deterministic rules first.
-  let output = expandDeterministic(input);
+  let output = expandDeterministic(input, options);
 
   // Optionally apply LLM expansion if response is long enough.
   if (backend && wordCount(input) >= options.expandThreshold) {
