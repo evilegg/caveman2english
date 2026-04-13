@@ -184,6 +184,77 @@ caveman2english/
 - [x] Tests for all rules + integration (89 passing)
 - [x] `.claude/hooks` example config (`examples/claude-code-hook/`)
 
+## Experiments
+
+Three experiments were run on feature branches to evaluate alternative approaches.
+Each used a 20-entry technical corpus and a synthetic encoder to avoid live API calls.
+Full results and source code live on the respective branches.
+
+### Fidelity Benchmark (`experiment/fidelity-benchmark`)
+
+Baseline: how well does deterministic c2e recover original prose from synthetic caveman?
+
+| Metric         | Level 1 | Level 2 | Level 3 |
+| -------------- | ------- | ------- | ------- |
+| ROUGE-1        | 82.3%   | 83.0%   | 83.0%   |
+| Compression    | 14.2%   | 14.2%   | 14.2%   |
+| Modal recovery | 92.5%   | 92.5%   | 92.5%   |
+
+Modal recovery at 92.5% is inflated because the synthetic encoder retains `should`
+(which caveman Full actually strips).
+Fragment rules never fired because the synthetic encoder left verbs intact.
+
+### UST Experiment (`experiment/ust-language`)
+
+Hypothesis: replacing caveman with emoji role markers (🔴=problem, 🟢=fix, 💡=reason)
+preserves semantic structure and enables better reconstruction.
+
+| System      | ROUGE-1 | Compression | Modal recovery |
+| ----------- | ------- | ----------- | -------------- |
+| Caveman+c2e | 83.0%   | 14.2%       | 92.5%          |
+| UST+decoder | 80.7%   | 4.7%        | 85.0%          |
+
+**Result: UST underperforms on all three metrics.**
+Emoji markers add character overhead without improving fidelity.
+The decoder introduces artifacts (doubled conjunctions, redundant sentence prefixes).
+The structural metadata is preserved but the reconstruction quality is worse.
+
+### RFC Experiment (`experiment/rfc-dialect`)
+
+Hypothesis: keeping modal verbs (`should`/`must`/`might`/`likely`) and causal
+conjunctions (`because`/`but`/`however`) in the encoded form improves reconstruction
+while compressing everything else identically to caveman Full.
+
+| System      | ROUGE-1 | Compression | Modal recovery |
+| ----------- | ------- | ----------- | -------------- |
+| Caveman+c2e | 83.0%   | 14.2%       | 92.5%          |
+| RFC+c2e     | 84.7%   | 3.5%        | **100.0%**     |
+
+**Result: RFC hypothesis confirmed.**
+RFC achieves perfect modal recovery and +1.7% ROUGE-1 at the cost of lower compression
+(3.5% vs 14.2%).
+Round-trips are clean, natural prose with no decoder artifacts.
+
+The compression trade-off is real: RFC saves ~3–4% of characters vs the original,
+compared to caveman's ~14%.
+Whether that trade-off is worthwhile depends on context — for structured debugging
+explanations where `should`/`must`/`might` carry critical nuance, RFC is the better
+dialect.
+For maximum token savings with acceptable fidelity, plain caveman+c2e remains the
+right choice.
+
+### Key Findings
+
+1. **Deterministic c2e works well** — 83% ROUGE-1 on real-world technical corpus.
+2. **Don't add a custom decoder** — the UST experiment shows that a novel encoded
+   format with a custom decoder underperforms the simpler caveman+c2e pipeline.
+3. **Preserve semantic load-bearing words** — RFC proves that keeping modals and
+   conjunctions in the encoded form produces better mechanical reconstruction than
+   stripping them and hoping the expander recovers them from context.
+4. **Fragment rules are underutilised** — the synthetic encoder doesn't strip verbs,
+   so fragment completion never fires. Real caveman output at Ultra mode would benefit
+   more from levels 2 and 3.
+
 ## Future
 
 - [x] Configurable rule toggling (`--no-arrows`, `--no-abbreviations`, `--no-fragments`, `--no-conjunctions`, `--no-articles`, `--no-ventilate`)
