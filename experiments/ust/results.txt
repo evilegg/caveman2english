@@ -1,0 +1,62 @@
+=== UST vs CAVEMAN BENCHMARK ===
+
+Format: cave=caveman+c2e expansion   ust=UST+decoder
+R1=ROUGE-1  comp=compression  modal=modal-recovery  roles=role markers used
+
+react-rerender         cave R1=78.3% comp=14.8% modal=100.0% | ust  R1=75.8% comp=13.0% modal=100.0% roles=3
+auth-token             cave R1=81.8% comp=20.5% modal=100.0% | ust  R1=78.9% comp=0.0% modal=100.0% roles=3
+db-pool                cave R1=84.9% comp=11.7% modal=50.0% | ust  R1=82.2% comp=8.3% modal=50.0% roles=2
+race-condition         cave R1=86.0% comp=14.6% modal=50.0% | ust  R1=85.4% comp=8.3% modal=50.0% roles=3
+memory-leak            cave R1=87.6% comp=10.4% modal=100.0% | ust  R1=87.0% comp=6.3% modal=100.0% roles=3
+cache-invalidation     cave R1=84.6% comp=10.2% modal=50.0% | ust  R1=83.3% comp=3.4% modal=50.0% roles=3
+cors                   cave R1=78.7% comp=16.7% modal=100.0% | ust  R1=76.6% comp=1.9% modal=100.0% roles=3
+jwt-expiry             cave R1=79.6% comp=14.5% modal=100.0% | ust  R1=78.5% comp=3.2% modal=100.0% roles=3
+event-loop             cave R1=88.9% comp=12.7% modal=100.0% | ust  R1=87.4% comp=5.5% modal=100.0% roles=3
+promise-chain          cave R1=82.4% comp=15.0% modal=100.0% | ust  R1=78.5% comp=6.7% modal=0.0% roles=3
+typescript-narrowing   cave R1=79.6% comp=20.6% modal=100.0% | ust  R1=78.6% comp=4.4% modal=100.0% roles=2
+sql-injection          cave R1=88.7% comp=9.3% modal=100.0% | ust  R1=84.8% comp=3.7% modal=50.0% roles=2
+docker-network         cave R1=77.9% comp=17.0% modal=100.0% | ust  R1=75.6% comp=2.1% modal=100.0% roles=3
+rate-limit             cave R1=88.9% comp=13.3% modal=100.0% | ust  R1=83.5% comp=3.3% modal=100.0% roles=3
+npm-conflict           cave R1=84.1% comp=9.7% modal=100.0% | ust  R1=83.2% comp=3.2% modal=100.0% roles=3
+websocket              cave R1=78.5% comp=15.4% modal=100.0% | ust  R1=74.3% comp=9.2% modal=100.0% roles=3
+git-conflict           cave R1=80.9% comp=17.9% modal=100.0% | ust  R1=76.8% comp=1.8% modal=100.0% roles=3
+k8s-pod                cave R1=82.0% comp=13.6% modal=100.0% | ust  R1=80.8% comp=1.7% modal=100.0% roles=3
+css-specificity        cave R1=82.0% comp=15.3% modal=100.0% | ust  R1=79.2% comp=6.8% modal=100.0% roles=3
+wasm-memory            cave R1=85.5% comp=11.3% modal=100.0% | ust  R1=83.2% comp=1.6% modal=100.0% roles=3
+
+=== AVERAGES ===
+
+Caveman+c2e:  ROUGE-1=83.0%  compression=14.2%  modal=92.5%
+UST+decoder:  ROUGE-1=80.7%  compression=4.7%  modal=85.0%
+
+=== SAMPLE ROUND-TRIPS ===
+
+── react-rerender
+ORIGINAL:   Your React component is re-rendering because you are creating a new object reference on each render cycle. The inline ob…
+UST ENC:    💡 Your React comp is re-rendering because you are creating new obj ref 🔁 render cycle
+🔵 The inline obj prop creates new ref on 🔁 render ⚡ React to think the props have changed
+🟢 You should wrap the calculation in useMemo to memoize the obj and prevent unnecessary re-renders
+UST DEC:    This is because your React component is re-rendering because you are creating new object reference on each render cycle. | Note that the inline object property creates new reference on on each render causes React to think the properties have changed. | The fix is to you should wrap the calculation in useMemo to memoize the object and prevent unnecessary re-renders.
+CAVE ENC:   Your React comp is re-rendering because you are creating new obj ref on each render cycle. inline obj prop creates new r…
+CAVE DEC:   Your React component is re-rendering because you are creating new object reference on each render cycle. | Inline object…
+MODALS:     orig=should  ust=should  cave=should
+
+── auth-token
+ORIGINAL:   The authentication flow is broken because the token is missing from the environment variables. You should check the conf…
+UST ENC:    💡 The auth flow is broken because the token is missing from the env variables
+🟢 You should check the cfg file and make sure the token is set correctly
+🔵 After updating the cfg, restart the server to apply the changes
+UST DEC:    This is because the authentication flow is broken because the token is missing from the environment variables. | The fix is to you should wrap the calculation in useMemo to memoize the object and prevent unnecessary re-renders.
+CAVE ENC:   auth flow is broken because token is missing from env variables. You should check cfg file and make sure token is set co…
+CAVE DEC:   Authentication flow is broken because token is missing from environment variables. | You should check configuration file…
+MODALS:     orig=should  ust=should  cave=should
+
+── db-pool
+ORIGINAL:   The database connection pool is being exhausted because each request is opening a new connection without releasing it. T…
+UST ENC:    💡 The DB connection pool is being exhausted because each req is opening new connection without releasing it
+💡 This is ~ caused by missing err handling in the query fn, which prevents connections from returning to the pool
+🟢 You should wrap 🔁 DB call in try-finally block to ensure connections are always released, even when err occurs
+UST DEC:    This is because the database connection pool is being exhausted because each request is opening new connection without releasing it. | This is because this isprobably caused by missing error handling in the query function, which prevents connections from returning to the pool. | The fix is to you should wrap on each database call in try-finally block to ensure connections are always released, even when error occurs.
+CAVE ENC:   DB connection pool is being exhausted because each req is opening new connection without releasing it. This is caused by…
+CAVE DEC:   Database connection pool is being exhausted because each request is opening new connection without releasing it. | Also,…
+MODALS:     orig=likely,should  ust=should  cave=should

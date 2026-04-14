@@ -34,6 +34,7 @@ It splits input into alternating **text** and **code** segments (fenced blocks +
 | 5    | `rules/articles.ts`      | inserts `a`/`an` after prepositions before bare tech nouns                            |
 | 6    | `rules/punctuation.ts`   | capitalisation + terminal period normalisation                                        |
 | 7    | `rules/ventilate.ts`     | one sentence per line; blank lines between paragraphs                                 |
+| 8    | `rules/tasklist.ts`      | runs of ≥N consecutive imperatives → GFM `- [ ] X` task list (fires after ventilate)  |
 
 **All rules receive plain text only** — `expand.ts` handles code-fence segmentation before rules run.
 Rules must be written as if code blocks don't exist.

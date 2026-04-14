@@ -5,6 +5,7 @@ import { conjunctionsRule } from "./rules/conjunctions.js";
 import { articlesRule } from "./rules/articles.js";
 import { punctuationRule } from "./rules/punctuation.js";
 import { ventilateRule } from "./rules/ventilate.js";
+import { createTasklistRule } from "./rules/tasklist.js";
 import type { Rule, ExpandOptions } from "./types.js";
 
 function buildRules(opts?: Partial<ExpandOptions>): Rule[] {
@@ -19,6 +20,8 @@ function buildRules(opts?: Partial<ExpandOptions>): Rule[] {
     articlesRule,
     punctuationRule,
     ventilateRule,
+    // tasklist fires after ventilate so each sentence is already on its own line
+    createTasklistRule({ minRun: opts?.tasklistMinRun ?? 2 }),
   ];
 
   return all.filter((r) => !disabled.has(r.name));

@@ -39,6 +39,12 @@ program
   .option("--no-conjunctions", "Disable conjunction restoration")
   .option("--no-articles", "Disable article insertion heuristic")
   .option("--no-ventilate", "Disable ventilated-prose line splitting")
+  .option("--no-tasklist", "Disable GFM task list conversion for imperative sequences")
+  .option(
+    "--tasklist-min-run <n>",
+    "Minimum consecutive imperatives before converting to task list (default: 2)",
+    process.env["C2E_TASKLIST_MIN_RUN"],
+  )
   // Watch mode.
   .option("-w, --watch <file>", "Watch a file and translate new content as it is appended")
   .parse(process.argv);
@@ -56,6 +62,8 @@ const opts = program.opts<{
   conjunctions: boolean;
   articles: boolean;
   ventilate: boolean;
+  tasklist: boolean;
+  tasklistMinRun?: string;
   watch?: string;
 }>();
 
@@ -67,6 +75,7 @@ if (!opts.fragments) disabledRules.add("fragments(conservative)"); // name varie
 if (!opts.conjunctions) disabledRules.add("conjunctions");
 if (!opts.articles) disabledRules.add("articles");
 if (!opts.ventilate) disabledRules.add("ventilate");
+if (!opts.tasklist) disabledRules.add("tasklist");
 
 // Resolve fragment level — --no-fragments forces 0.
 const rawFragmentLevel = opts.fragments === false ? 0 : parseInt(opts.fragmentLevel ?? "1", 10);
@@ -85,6 +94,7 @@ const cliOpts: Partial<ExpandOptions> = {
     : undefined,
   disableRules: disabledRules.size ? disabledRules : undefined,
   extraAbbreviations: {},
+  tasklistMinRun: opts.tasklistMinRun ? parseInt(opts.tasklistMinRun, 10) : undefined,
 };
 
 const options = mergeConfig(cliOpts, loadUserConfig());

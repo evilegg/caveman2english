@@ -10,6 +10,12 @@
   },
   "scripts": {
     "build": "tsc",
+    "build:exp": "tsc -p tsconfig.experiments.json",
+    "benchmark:fidelity": "tsc -p tsconfig.experiments.json && node dist-exp/experiments/fidelity/run.js",
+    "benchmark:ust": "tsc -p tsconfig.experiments.json && node dist-exp/experiments/ust/benchmark.js",
+    "benchmark:rfc": "tsc -p tsconfig.experiments.json && node dist-exp/experiments/rfc/benchmark.js",
+    "benchmark:esperanto": "tsc -p tsconfig.experiments.json && node dist-exp/experiments/esperanto/benchmark.js",
+    "benchmark:gilfoyle": "tsc -p tsconfig.experiments.json && node dist-exp/experiments/gilfoyle/benchmark.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "tsc --noEmit"
@@ -18,7 +24,13 @@
     "type": "git",
     "url": "git+https://github.com/evilegg/caveman2english.git"
   },
-  "keywords": ["caveman", "llm", "cli", "prose", "expander"],
+  "keywords": [
+    "caveman",
+    "llm",
+    "cli",
+    "prose",
+    "expander"
+  ],
   "author": "evilegg",
   "license": "MIT",
   "bugs": {
@@ -27,6 +39,7 @@
   "homepage": "https://github.com/evilegg/caveman2english#readme",
   "devDependencies": {
     "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
     "typescript": "^6.0.2",
     "vitest": "^4.1.4"
   },

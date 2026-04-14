@@ -1,0 +1,64 @@
+
+=== RFC vs CAVEMAN BENCHMARK ===
+
+Both decoded with c2e expandDeterministic at fragmentLevel=2
+R1=ROUGE-1  comp=compression  modal=modal-recovery
+
+react-rerender         cave R1=78.3% comp=14.8% modal=100.0% | rfc  R1=81.7% comp=3.7% modal=100.0%
+auth-token             cave R1=81.8% comp=20.5% modal=100.0% | rfc  R1=83.6% comp=0.0% modal=100.0%
+db-pool                cave R1=84.9% comp=11.7% modal=50.0% | rfc  R1=86.8% comp=5.0% modal=100.0%
+race-condition         cave R1=86.0% comp=14.6% modal=50.0% | rfc  R1=89.7% comp=6.3% modal=100.0%
+memory-leak            cave R1=87.6% comp=10.4% modal=100.0% | rfc  R1=92.1% comp=4.2% modal=100.0%
+cache-invalidation     cave R1=84.6% comp=10.2% modal=50.0% | rfc  R1=87.6% comp=1.7% modal=100.0%
+cors                   cave R1=78.7% comp=16.7% modal=100.0% | rfc  R1=80.0% comp=1.9% modal=100.0%
+jwt-expiry             cave R1=79.6% comp=14.5% modal=100.0% | rfc  R1=80.8% comp=3.2% modal=100.0%
+event-loop             cave R1=88.9% comp=12.7% modal=100.0% | rfc  R1=90.0% comp=5.5% modal=100.0%
+promise-chain          cave R1=82.4% comp=15.0% modal=100.0% | rfc  R1=83.5% comp=5.0% modal=100.0%
+typescript-narrowing   cave R1=79.6% comp=20.6% modal=100.0% | rfc  R1=80.7% comp=4.4% modal=100.0%
+sql-injection          cave R1=88.7% comp=9.3% modal=100.0% | rfc  R1=89.8% comp=1.9% modal=100.0%
+docker-network         cave R1=77.9% comp=17.0% modal=100.0% | rfc  R1=79.5% comp=2.1% modal=100.0%
+rate-limit             cave R1=88.9% comp=13.3% modal=100.0% | rfc  R1=89.9% comp=1.7% modal=100.0%
+npm-conflict           cave R1=84.1% comp=9.7% modal=100.0% | rfc  R1=86.2% comp=3.2% modal=100.0%
+websocket              cave R1=78.5% comp=15.4% modal=100.0% | rfc  R1=79.6% comp=7.7% modal=100.0%
+git-conflict           cave R1=80.9% comp=17.9% modal=100.0% | rfc  R1=80.9% comp=1.8% modal=100.0%
+k8s-pod                cave R1=82.0% comp=13.6% modal=100.0% | rfc  R1=83.2% comp=1.7% modal=100.0%
+css-specificity        cave R1=82.0% comp=15.3% modal=100.0% | rfc  R1=83.2% comp=6.8% modal=100.0%
+wasm-memory            cave R1=85.5% comp=11.3% modal=100.0% | rfc  R1=86.2% comp=1.6% modal=100.0%
+
+=== AVERAGES ===
+
+Caveman+c2e:  ROUGE-1=83.0%  compression=14.2%  modal=92.5%
+RFC+c2e:      ROUGE-1=84.7%  compression=3.5%  modal=100.0%
+
+=== SAMPLE ROUND-TRIPS ===
+
+── react-rerender
+ORIGINAL:   Your React component is re-rendering because you are creating a new object reference on each render cycle. The inline ob…
+RFC ENC:    Your React comp is re-rendering because you are creating new obj ref on each render cycle
+The inline obj prop creates new ref on every render, which causes React to think the props have changed
+You should wrap the calculation in useMemo to memoize the obj and prevent unnecessary re-renders
+RFC DEC:    Your React component is re-rendering because you are creating new object reference on each render cycle | The inline object property creates new reference on every render, which causes React to think the properties have changed | You should wrap the calculation in useMemo to memoize the object and prevent unnecessary re-renders.
+CAVE ENC:   Your React comp is re-rendering because you are creating new obj ref on each render cycle. inline obj prop creates new r…
+CAVE DEC:   Your React component is re-rendering because you are creating new object reference on each render cycle. | Inline object…
+MODALS:     orig=should  rfc=should  cave=should
+
+── auth-token
+ORIGINAL:   The authentication flow is broken because the token is missing from the environment variables. You should check the conf…
+RFC ENC:    The auth flow is broken because the token is missing from the env variables
+You should check the cfg file and make sure the token is set correctly
+After updating the cfg, restart the server to apply the changes
+RFC DEC:    The authentication flow is broken because the token is missing from the environment variables | You should check the configuration file and make sure the token is set correctly | After updating the configuration, restart the server to apply the changes.
+CAVE ENC:   auth flow is broken because token is missing from env variables. You should check cfg file and make sure token is set co…
+CAVE DEC:   Authentication flow is broken because token is missing from environment variables. | You should check configuration file…
+MODALS:     orig=should  rfc=should  cave=should
+
+── db-pool
+ORIGINAL:   The database connection pool is being exhausted because each request is opening a new connection without releasing it. T…
+RFC ENC:    The DB connection pool is being exhausted because each req is opening new connection without releasing it
+This is likely caused by missing err handling in the query fn, which prevents connections from returning to the pool
+You should wrap every DB call in try-finally block to ensure connections are always released, even when err occurs
+RFC DEC:    The database connection pool is being exhausted because each request is opening new connection without releasing it | This is likely caused by missing error handling in the query function, which prevents connections from returning to the pool | You should wrap every database call in try-finally block to ensure connections are always released, even when error occurs.
+CAVE ENC:   DB connection pool is being exhausted because each req is opening new connection without releasing it. This is caused by…
+CAVE DEC:   Database connection pool is being exhausted because each request is opening new connection without releasing it. | Also,…
+MODALS:     orig=likely,should  rfc=likely,should  cave=should
+
