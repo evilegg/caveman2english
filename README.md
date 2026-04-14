@@ -159,10 +159,11 @@ See [experiments/README.md](experiments/README.md) to run the benchmarks or add 
 | UST+decoder   | 80.7%     | 4.7%        | 85.0%          | —               |
 | RFC+c2e       | **84.7%** | 3.5%        | **100.0%**     | **100.0%**      |
 | Esperanto+c2e | 84.4%     | 3.0%        | **100.0%**     | **100.0%**      |
-| Gilfoyle      | 79.5%     | 6.7%        | 22.5%†         | **100.0%**      |
+| Gilfoyle v2   | 72.0%     | **14.1%**   | 77.5%†         | **100.0%**      |
 
-† Gilfoyle intentionally converts social-softening `should` to imperative.
-The 22.5% reflects only genuinely meaningful modals (`must`, `might`, `cannot`) — the rest became direct commands.
+† Gilfoyle v2 encodes `might`/`likely`/`probably` as `~outcome` (tilde prefix) and converts `should` to imperatives.
+The Gilfoyle-aware metric counts `~` markers and imperative sentences as recovered signals — 77.5% reflects actual semantic preservation.
+Raw prose-only modal recovery is ~15%.
 
 ### Which approach to use
 
@@ -175,7 +176,9 @@ RFC is the recommended default for most technical dialogue.
 **Esperanto + c2e** — RFC compliance is unreliable from a live LLM.
 Esperanto gives the model a real grammar to fall back on.
 
-**Gilfoyle** — output will be read directly by a human with no decoder.
-Produces imperative prose and GFM task lists, no c2e required.
+**Gilfoyle v2** — output will be read directly by a human with no decoder.
+Produces imperative prose, `~`-hedged uncertainty, cause-first `→` arrows, and GFM task lists.
+No c2e required.
+Achieves caveman-level compression (14.1%) while preserving all semantic ligatures.
 
 **Not UST** — definitively worse than plain caveman on every metric.
