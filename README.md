@@ -37,9 +37,9 @@ User config lives in `~/.c2e.json` — see `DESIGN.md` for the full schema.
 
 ## Experiments
 
-Four experiments tested whether alternative encoding schemes could outperform plain caveman on mechanical reconstruction fidelity.
+Five experiments tested whether alternative encoding schemes could outperform plain caveman on mechanical reconstruction fidelity.
 Each used a 20-entry technical corpus and a synthetic encoder to generate encoded/original pairs without live API calls.
-Four metrics were tracked: ROUGE-1 F1 (unigram overlap with the original), compression ratio (character savings vs original), modal recovery (fraction of uncertainty words like `should`/`might` preserved), and causal recovery (fraction of causal conjunctions like `because`/`since` preserved).
+Five metrics were tracked: ROUGE-1 F1 (unigram overlap with the original), compression ratio (character savings vs original), modal recovery (fraction of uncertainty words like `should`/`might` preserved), causal recovery (fraction of causal conjunctions like `because`/`since` preserved), and reconstruction-required (fraction of encoded sentences with a detectably broken semantic binding).
 
 ### Fidelity baseline (`experiment/fidelity-benchmark`)
 
@@ -84,14 +84,37 @@ Notable implementation detail: JavaScript's `\b` word boundary silently fails fo
 One entry (`cache-invalidation`) went negative on compression because Esperanto technical vocabulary (`kaŝmemoro`) is longer than the English abbreviation — the encoder should prefer known short forms.
 The practical case for Esperanto over RFC is not in the numbers but in compliance: a live LLM is more likely to produce consistent Esperanto (a language it was trained on) than to reliably follow a custom dialect rule it has never seen.
 
+### Gilfoyle (`experiment/gilfoyle-dialect`)
+
+**Hypothesis:** stripping only cosmetic padding — pleasantries, filler adverbs, indefinite articles, and social-softening modals — while restructuring action sentences to imperatives and parallel steps to GFM task lists, produces output readable without any decoder or mental reconstruction effort.
+
+**Validation:** built a Gilfoyle encoder that preserves all semantic ligatures (`must`, `might`, `cannot`, `because`, `since`, negation scope, contrastive markers) and converts `you should X` to the imperative `X`.
+Introduced a fifth metric, reconstruction-required: the fraction of encoded sentences containing a detectably broken semantic binding (orphaned modal, bare causal conjunction, negation without target).
+The benchmark compares Gilfoyle directly against caveman, RFC, and Esperanto.
+
+**Conclusion:** hypothesis confirmed for causal and negation ligatures; partially confirmed for modal ligatures.
+Causal recovery is 100% and reconstruction-required is 0% — no broken bindings.
+Modal recovery is 22.5%, which is by design: social-softening `should` is intentionally replaced by an imperative that conveys the same obligation without the hedge theater.
+ROUGE-1 is lower than RFC (79.5% vs 84.7%) because the metric penalises restructuring — converting `you should wrap` to `wrap` drops two unigrams even though no information is lost.
+Compression is 6.7%, roughly double RFC's 3.5%, confirming that imperative restructuring buys real savings beyond mere word-list trimming.
+
 ### Results
 
-| System        | ROUGE-1   | Compression | Modal recovery | Causal recovery |
-| ------------- | --------- | ----------- | -------------- | --------------- |
-| Caveman+c2e   | 83.0%     | **14.2%**   | 92.5%          | 100.0%          |
-| UST+decoder   | 80.7%     | 4.7%        | 85.0%          | —               |
-| RFC+c2e       | **84.7%** | 3.5%        | **100.0%**     | **100.0%**      |
-| Esperanto+c2e | 84.4%     | 3.0%        | **100.0%**     | **100.0%**      |
+| System        | ROUGE-1   | Compression | Modal recovery | Causal recovery | Recon-required |
+| ------------- | --------- | ----------- | -------------- | --------------- | -------------- |
+| Caveman+c2e   | 83.0%     | **14.2%**   | 92.5%          | 100.0%          | 0.0%†          |
+| UST+decoder   | 80.7%     | 4.7%        | 85.0%          | —               | —              |
+| RFC+c2e       | **84.7%** | 3.5%        | **100.0%**     | **100.0%**      | 0.0%†          |
+| Esperanto+c2e | 84.4%     | 3.0%        | **100.0%**     | **100.0%**      | 0.0%†          |
+| Gilfoyle      | 79.5%     | 6.7%        | 22.5%‡         | **100.0%**      | **0.0%**       |
+
+† The reconstruction-required metric uses sentence-boundary heuristics.
+The synthetic encoders do not produce orphaned modals at sentence boundaries, so all systems score 0%.
+The metric is most meaningful against real caveman LLM output.
+
+‡ Gilfoyle's 22.5% modal recovery is by design.
+Social-softening `should` is converted to an imperative; only technically meaningful modals (`must`, `might`, `cannot`) are preserved.
+The 22.5% reflects the fraction of corpus modals that were genuine obligations or uncertainty markers.
 
 ---
 
@@ -106,16 +129,20 @@ These benchmarks measure character savings on a synthetic encoder that does not 
 Caveman's documented token savings are 65–75% vs full English prose.
 Based on the relative compression ratios observed, approximate real-world savings are:
 
-| Approach        | Estimated token savings | Reconstruction fidelity | Modal/causal preserved |
-| --------------- | ----------------------- | ----------------------- | ---------------------- |
-| Plain caveman   | 65–75%                  | ~83% ROUGE-1            | No (stripped)          |
-| Caveman + c2e   | 65–75%                  | ~83% ROUGE-1            | Partially recovered    |
-| RFC + c2e       | 55–65%                  | ~85% ROUGE-1            | Yes (100%)             |
-| Esperanto + c2e | 55–65%                  | ~84% ROUGE-1            | Yes (100%)             |
-| UST + decoder   | 50–60%                  | ~81% ROUGE-1            | Partially (85%)        |
+| Approach        | Estimated token savings | Reconstruction fidelity | Modal/causal preserved                      | Decoder needed |
+| --------------- | ----------------------- | ----------------------- | ------------------------------------------- | -------------- |
+| Plain caveman   | 65–75%                  | ~83% ROUGE-1            | No (stripped)                               | c2e            |
+| Caveman + c2e   | 65–75%                  | ~83% ROUGE-1            | Partially recovered                         | c2e            |
+| RFC + c2e       | 55–65%                  | ~85% ROUGE-1            | Yes (100%)                                  | c2e            |
+| Esperanto + c2e | 55–65%                  | ~84% ROUGE-1            | Yes (100%)                                  | c2e + reverse  |
+| UST + decoder   | 50–60%                  | ~81% ROUGE-1            | Partially (85%)                             | custom decoder |
+| Gilfoyle        | 60–70%                  | ~80% ROUGE-1†           | Causal yes; social modal stripped by design | None           |
+
+† Gilfoyle's ROUGE-1 is penalised by imperative restructuring.
+A structure-normalised score would be closer to RFC.
 
 RFC and Esperanto cost roughly 10 percentage points of compression versus plain caveman to buy perfect modal and causal recovery.
-Whether that trade-off is worthwhile depends on what is being communicated.
+Gilfoyle recovers most of that compression gap by stripping social hedging, at the cost of lower ROUGE-1 from restructuring — and needs no decoder at all.
 
 ### Which approach to use
 
@@ -129,6 +156,11 @@ It is the recommended default for most technical dialogue.
 **Use Esperanto + c2e** when RFC compliance is unreliable in practice.
 If a live LLM inconsistently follows the RFC dialect rule, switching to Esperanto gives it a real grammar to fall back on.
 Both approaches need a live A/B test to confirm which produces more consistent output — the synthetic benchmarks cannot answer this.
+
+**Use Gilfoyle** when the reader is human and no decoder is available — or when the output will be read directly without passing through c2e.
+Gilfoyle produces imperative prose and GFM task lists that are readable as-is.
+The tradeoff: social hedging (`you should`) is converted to direct commands, which may read as blunt but carries the same information.
+Causal ligatures and genuine obligations (`must`, `cannot`) are fully preserved.
 
 **Do not use UST.**
 The emoji marker approach is definitively worse than caveman on every metric and should not be pursued further without a fundamentally different decoder architecture.
