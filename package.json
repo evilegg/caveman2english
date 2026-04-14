@@ -15,6 +15,7 @@
     "benchmark:ust": "tsc -p tsconfig.experiments.json && node dist-exp/experiments/ust/benchmark.js",
     "benchmark:rfc": "tsc -p tsconfig.experiments.json && node dist-exp/experiments/rfc/benchmark.js",
     "benchmark:esperanto": "tsc -p tsconfig.experiments.json && node dist-exp/experiments/esperanto/benchmark.js",
+    "benchmark:gilfoyle": "tsc -p tsconfig.experiments.json && node dist-exp/experiments/gilfoyle/benchmark.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "tsc --noEmit"
