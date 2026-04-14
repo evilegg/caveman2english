@@ -117,6 +117,8 @@ echo "missing auth token. check env vars." | c2e --fragment-level 2
 --no-abbreviations      Skip abbreviation expansion
 --no-fragments          Skip fragment completion
 --no-ventilate          Skip one-sentence-per-line formatting
+--no-tasklist           Skip GFM task list conversion for imperative sequences
+--tasklist-min-run <n>  Min consecutive imperatives to trigger task list (default: 2)
 --backend claude|ollama Enable LLM expansion for long responses
 --expand-threshold <n>  Word count before LLM kicks in (default: 300)
 ```
