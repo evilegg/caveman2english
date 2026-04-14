@@ -34,6 +34,8 @@ import { encodeRFC } from "../rfc/encoder.js";
 import { encodeEsperanto } from "../esperanto/encoder.js";
 import { decodeEsperanto } from "../esperanto/decoder.js";
 import { encodeGilfoyle } from "./encoder.js";
+import { encodeGilfoyleV3 } from "./encoder-v3.js";
+import { VERBOSE_CORPUS } from "./verbose-corpus.js";
 
 // ── Causal recovery ───────────────────────────────────────────────────────────
 
@@ -178,6 +180,7 @@ function runBenchmark() {
     rfc: { rouge: 0, comp: 0, modal: 0, causal: 0, recon: 0 },
     eo: { rouge: 0, comp: 0, modal: 0, causal: 0, recon: 0 },
     gf: { rouge: 0, comp: 0, modal: 0, causal: 0, recon: 0 },
+    gfv3: { rouge: 0, comp: 0, modal: 0, causal: 0, recon: 0 },
   };
   const n = CORPUS.length;
   const rows: string[] = [];
@@ -188,38 +191,45 @@ function runBenchmark() {
     const rfcEncoded = encodeRFC(entry.original);
     const eoEncoded = encodeEsperanto(entry.original);
     const gfEncoded = encodeGilfoyle(entry.original);
+    const gfv3Encoded = encodeGilfoyleV3(entry.original);
 
     // Decode — Gilfoyle needs no decoder (direct read)
     const caveDecoded = expandDeterministic(caveEncoded, { fragmentLevel: 2 });
     const rfcDecoded = expandDeterministic(rfcEncoded, { fragmentLevel: 2 });
     const eoDecoded = decodeEsperanto(eoEncoded);
-    const gfDecoded = gfEncoded; // Gilfoyle is directly readable
+    const gfDecoded = gfEncoded;     // Gilfoyle v2 is directly readable — no decoder
+    const gfv3Decoded = gfv3Encoded; // Gilfoyle v3 is directly readable — no decoder
 
     // Score
     const caveR1 = rouge1(caveDecoded, entry.original);
     const rfcR1 = rouge1(rfcDecoded, entry.original);
     const eoR1 = rouge1(eoDecoded, entry.original);
     const gfR1 = rouge1(gfDecoded, entry.original);
+    const gfv3R1 = rouge1(gfv3Decoded, entry.original);
 
     const caveComp = compressionRatio(entry.original, caveEncoded);
     const rfcComp = compressionRatio(entry.original, rfcEncoded);
     const eoComp = compressionRatio(entry.original, eoEncoded);
     const gfComp = compressionRatio(entry.original, gfEncoded);
+    const gfv3Comp = compressionRatio(entry.original, gfv3Encoded);
 
     const caveMR = modalRecovery(caveDecoded, entry.original);
     const rfcMR = modalRecovery(rfcDecoded, entry.original);
     const eoMR = modalRecovery(eoDecoded, entry.original);
     const gfMR = modalRecoveryGilfoyle(gfEncoded, entry.original);
+    const gfv3MR = modalRecoveryGilfoyle(gfv3Encoded, entry.original);
 
     const caveCR = causalRecovery(caveDecoded, entry.original);
     const rfcCR = causalRecovery(rfcDecoded, entry.original);
     const eoCR = causalRecovery(eoDecoded, entry.original);
     const gfCR = causalRecoveryGilfoyle(gfEncoded, entry.original);
+    const gfv3CR = causalRecoveryGilfoyle(gfv3Encoded, entry.original);
 
     const caveRecon = reconstructionRequired(caveEncoded);
     const rfcRecon = reconstructionRequired(rfcEncoded);
     const eoRecon = reconstructionRequired(eoEncoded);
     const gfRecon = reconstructionRequired(gfEncoded);
+    const gfv3Recon = reconstructionRequired(gfv3Encoded);
 
     sums.cave.rouge += caveR1;
     sums.cave.comp += caveComp;
@@ -245,6 +255,12 @@ function runBenchmark() {
     sums.gf.causal += gfCR;
     sums.gf.recon += gfRecon;
 
+    sums.gfv3.rouge += gfv3R1;
+    sums.gfv3.comp += gfv3Comp;
+    sums.gfv3.modal += gfv3MR;
+    sums.gfv3.causal += gfv3CR;
+    sums.gfv3.recon += gfv3Recon;
+
     rows.push(
       `${entry.id.padEnd(22)} ` +
         `cave R1=${pct(caveR1)} comp=${pct(caveComp)} modal=${pct(caveMR)} causal=${pct(caveCR)} recon=${pct(caveRecon)} | ` +
@@ -266,6 +282,16 @@ function runBenchmark() {
   const rfcAvg = avg(sums.rfc);
   const eoAvg = avg(sums.eo);
   const gfAvg = avg(sums.gf);
+  const gfv3Avg = avg(sums.gfv3);
+
+  console.log("\n=== GILFOYLE v2 vs GILFOYLE v3 — ORIGINAL CORPUS (REGRESSION CHECK) ===\n");
+  console.log(
+    `Gilfoyle v2: ROUGE-1=${pct(gfAvg.rouge)}  comp=${pct(gfAvg.comp)}  modal=${pct(gfAvg.modal)}  causal=${pct(gfAvg.causal)}  recon=${pct(gfAvg.recon)}`,
+  );
+  console.log(
+    `Gilfoyle v3: ROUGE-1=${pct(gfv3Avg.rouge)}  comp=${pct(gfv3Avg.comp)}  modal=${pct(gfv3Avg.modal)}  causal=${pct(gfv3Avg.causal)}  recon=${pct(gfv3Avg.recon)}`,
+  );
+  console.log("(v3 pre-pass has minimal surface on clean corpus — scores should match v2 closely)\n");
 
   console.log("\n=== GILFOYLE vs ESPERANTO vs RFC vs CAVEMAN BENCHMARK ===\n");
   console.log(
@@ -354,4 +380,92 @@ function runBenchmark() {
   );
 }
 
+// ── Gilfoyle v3 verbose corpus benchmark ──────────────────────────────────────
+
+function runVerboseBenchmark() {
+  const sums = {
+    gfv2: { rouge: 0, comp: 0, modal: 0, causal: 0, recon: 0 },
+    gfv3: { rouge: 0, comp: 0, modal: 0, causal: 0, recon: 0 },
+  };
+  const n = VERBOSE_CORPUS.length;
+  const rows: string[] = [];
+
+  for (const entry of VERBOSE_CORPUS) {
+    const v2Encoded = encodeGilfoyle(entry.original);
+    const v3Encoded = encodeGilfoyleV3(entry.original);
+
+    const v2R1 = rouge1(v2Encoded, entry.original);
+    const v3R1 = rouge1(v3Encoded, entry.original);
+
+    const v2Comp = compressionRatio(entry.original, v2Encoded);
+    const v3Comp = compressionRatio(entry.original, v3Encoded);
+
+    const v2MR = modalRecoveryGilfoyle(v2Encoded, entry.original);
+    const v3MR = modalRecoveryGilfoyle(v3Encoded, entry.original);
+
+    const v2CR = causalRecoveryGilfoyle(v2Encoded, entry.original);
+    const v3CR = causalRecoveryGilfoyle(v3Encoded, entry.original);
+
+    const v2Recon = reconstructionRequired(v2Encoded);
+    const v3Recon = reconstructionRequired(v3Encoded);
+
+    sums.gfv2.rouge += v2R1;
+    sums.gfv2.comp += v2Comp;
+    sums.gfv2.modal += v2MR;
+    sums.gfv2.causal += v2CR;
+    sums.gfv2.recon += v2Recon;
+
+    sums.gfv3.rouge += v3R1;
+    sums.gfv3.comp += v3Comp;
+    sums.gfv3.modal += v3MR;
+    sums.gfv3.causal += v3CR;
+    sums.gfv3.recon += v3Recon;
+
+    rows.push(
+      `${entry.id.padEnd(22)} ` +
+        `v2  R1=${pct(v2R1)} comp=${pct(v2Comp)} modal=${pct(v2MR)} causal=${pct(v2CR)} recon=${pct(v2Recon)} | ` +
+        `v3  R1=${pct(v3R1)} comp=${pct(v3Comp)} modal=${pct(v3MR)} causal=${pct(v3CR)} recon=${pct(v3Recon)}`,
+    );
+  }
+
+  const avg = (s: typeof sums.gfv2) => ({
+    rouge: s.rouge / n,
+    comp: s.comp / n,
+    modal: s.modal / n,
+    causal: s.causal / n,
+    recon: s.recon / n,
+  });
+
+  const v2Avg = avg(sums.gfv2);
+  const v3Avg = avg(sums.gfv3);
+
+  console.log("\n=== GILFOYLE v3 — VERBOSE CORPUS BENCHMARK ===\n");
+  console.log("v2=Gilfoyle v2 (direct)  v3=Gilfoyle v3 (phrase-level transforms + v2)");
+  console.log("Verbose corpus: 12 entries of corporate/LLM prose (postmortems, incident reports, design docs)");
+  console.log("R1=ROUGE-1  comp=compression  modal=modal-recovery  causal=causal-recovery  recon=reconstruction-required\n");
+
+  for (const row of rows) console.log(row);
+
+  console.log("\n=== VERBOSE CORPUS AVERAGES ===\n");
+  console.log(
+    `Gilfoyle v2: ROUGE-1=${pct(v2Avg.rouge)}  comp=${pct(v2Avg.comp)}  modal=${pct(v2Avg.modal)}  causal=${pct(v2Avg.causal)}  recon=${pct(v2Avg.recon)}`,
+  );
+  console.log(
+    `Gilfoyle v3: ROUGE-1=${pct(v3Avg.rouge)}  comp=${pct(v3Avg.comp)}  modal=${pct(v3Avg.modal)}  causal=${pct(v3Avg.causal)}  recon=${pct(v3Avg.recon)}`,
+  );
+
+  // Sample round-trips
+  console.log("\n=== VERBOSE CORPUS SAMPLE ROUND-TRIPS ===\n");
+  for (const entry of VERBOSE_CORPUS.slice(0, 2)) {
+    const v2 = encodeGilfoyle(entry.original);
+    const v3 = encodeGilfoyleV3(entry.original);
+    console.log(`── ${entry.id}`);
+    console.log(`ORIGINAL: ${entry.original.slice(0, 160)}…`);
+    console.log(`GF v2:    ${v2.replace(/\n/g, " | ").slice(0, 160)}`);
+    console.log(`GF v3:    ${v3.replace(/\n/g, " | ").slice(0, 160)}`);
+    console.log();
+  }
+}
+
 runBenchmark();
+runVerboseBenchmark();

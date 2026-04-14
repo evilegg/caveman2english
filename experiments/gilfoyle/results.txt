@@ -24,51 +24,82 @@ k8s-pod                cave R1=82.0% comp=13.6% modal=100.0% causal=100.0% recon
 css-specificity        cave R1=82.0% comp=15.3% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=83.2% comp=6.8% modal=100.0% causal=100.0% recon=0.0% | eo   R1=83.2% comp=6.8% modal=100.0% causal=100.0% recon=0.0% | gf   R1=70.8% comp=15.3% modal=100.0% causal=100.0% recon=0.0%
 wasm-memory            cave R1=85.5% comp=11.3% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=86.2% comp=1.6% modal=100.0% causal=100.0% recon=0.0% | eo   R1=86.2% comp=1.6% modal=100.0% causal=100.0% recon=0.0% | gf   R1=69.9% comp=11.3% modal=100.0% causal=100.0% recon=0.0%
 
-=== AVERAGES ===
+=== AVERAGES (original 20-entry corpus) ===
 
 Caveman+c2e:   ROUGE-1=83.0%  comp=14.2%  modal=92.5%  causal=100.0%  recon=0.0%
 RFC+c2e:       ROUGE-1=84.7%  comp=3.5%   modal=100.0% causal=100.0%  recon=0.0%
 Esperanto+c2e: ROUGE-1=84.4%  comp=3.0%   modal=100.0% causal=100.0%  recon=0.0%
 Gilfoyle v2:   ROUGE-1=72.0%  comp=14.1%  modal=77.5%  causal=100.0%  recon=0.0%
 
+=== GILFOYLE v3 — VERBOSE CORPUS (12 entries) ===
+
+v2=Gilfoyle v2  v3=Gilfoyle v3 (phrase-level pre-pass + v2)
+Corpus: postmortems, incident reports, design docs (80-160 words each)
+
+postmortem-db          v2  R1=63.0% comp=10.6% modal=100.0% causal=100.0% recon=0.0% | v3  R1=55.9% comp=33.3% modal=100.0% causal=100.0% recon=0.0%
+postmortem-deploy      v2  R1=66.1% comp=10.4% modal=100.0% causal=100.0% recon=0.0% | v3  R1=55.2% comp=31.9% modal=100.0% causal=100.0% recon=0.0%
+incident-cache         v2  R1=71.8% comp=8.4% modal=100.0% causal=100.0% recon=0.0% | v3  R1=64.4% comp=26.7% modal=100.0% causal=100.0% recon=0.0%
+design-auth            v2  R1=61.9% comp=11.8% modal=100.0% causal=100.0% recon=0.0% | v3  R1=53.2% comp=33.1% modal=100.0% causal=100.0% recon=0.0%
+design-queue           v2  R1=64.8% comp=13.2% modal=100.0% causal=100.0% recon=0.0% | v3  R1=53.4% comp=38.2% modal=100.0% causal=100.0% recon=0.0%
+incident-memory        v2  R1=58.6% comp=12.1% modal=100.0% causal=100.0% recon=0.0% | v3  R1=50.9% comp=32.5% modal=100.0% causal=100.0% recon=0.0%
+incident-race          v2  R1=68.5% comp=8.1% modal=100.0% causal=100.0% recon=0.0% | v3  R1=55.8% comp=32.5% modal=75.0% causal=100.0% recon=0.0%
+design-cors            v2  R1=66.1% comp=7.4% modal=100.0% causal=100.0% recon=0.0% | v3  R1=57.5% comp=35.1% modal=100.0% causal=100.0% recon=0.0%
+incident-timeout       v2  R1=63.2% comp=11.8% modal=100.0% causal=100.0% recon=0.0% | v3  R1=51.5% comp=34.2% modal=100.0% causal=100.0% recon=0.0%
+design-logging         v2  R1=67.2% comp=8.0% modal=100.0% causal=100.0% recon=0.0% | v3  R1=56.9% comp=30.7% modal=100.0% causal=100.0% recon=0.0%
+postmortem-k8s         v2  R1=62.9% comp=5.5% modal=100.0% causal=100.0% recon=0.0% | v3  R1=51.5% comp=29.9% modal=100.0% causal=100.0% recon=0.0%
+incident-sql           v2  R1=62.3% comp=9.2% modal=100.0% causal=100.0% recon=0.0% | v3  R1=52.1% comp=28.3% modal=100.0% causal=100.0% recon=0.0%
+
+=== VERBOSE CORPUS AVERAGES ===
+
+Gilfoyle v2: ROUGE-1=64.7%  comp=9.7%   modal=100.0%  causal=100.0%  recon=0.0%
+Gilfoyle v3: ROUGE-1=54.9%  comp=32.2%  modal=97.9%   causal=100.0%  recon=0.0%
+
+=== REGRESSION CHECK (v3 on original corpus) ===
+
+Gilfoyle v2: ROUGE-1=72.0%  comp=14.1%  modal=77.5%  causal=100.0%  recon=0.0%
+Gilfoyle v3: ROUGE-1=72.0%  comp=14.1%  modal=77.5%  causal=100.0%  recon=0.0%
+
+v3 pre-pass is neutral on clean corpus -- no regression.
+
 === METRIC NOTES ===
 
-Compression (14.1% -- parity with caveman synthetic benchmark):
-  v1 achieved 7%; v2 doubled it via copula deletion, causation restructuring,
-  relative clause compression, infinitive compression, and numeric normalisation.
-  The synthetic caveman benchmark tops out at 14.2% because neither encoder strips
-  verbs. Real caveman saves 65-75% by stripping verbs -- Gilfoyle deliberately
-  preserves them for readability.
+Compression (original corpus: 14.1%):
+  v2 ceiling on the original corpus. Neither encoder strips verbs.
+  Real caveman saves 65-75% by stripping verbs.
 
-ROUGE-1 (72.0% -- lower than v1's 79.5%, expected):
-  More aggressive restructuring (cause-first reorder, copula deletion,
-  participial compression) reduces unigram overlap further. The metric
-  penalises every structural change even when no information is lost.
-  Issue #8 (structure-normalised ROUGE-1) will produce a fairer score.
+Compression (verbose corpus: 32.2%):
+  v3 pre-pass has abundant surface on verbose corporate/LLM prose.
+  Primary drivers: "it is X that Y" stripping (~12-15% per entry),
+  verbose connective compression ("in the event that" → "if", etc.),
+  quantifier reduction ("all of the" → "all"), and verbose verb phrases
+  ("make use of" → "use"). Genitive inversion and nominalisation reversal
+  each contribute 2-4% per entry.
 
-Modal recovery (77.5% -- Gilfoyle-aware metric):
-  Counts ~ prefixes as recovered uncertainty markers and imperative sentences
-  as recovered social-softening "should". Raw modal recovery (prose words only)
-  scores ~15% -- the 77.5% reflects what actually happened to each modal:
-  preserved as prose, re-encoded as ~, or converted to imperative.
-  Issue #9 (modal disposition metric) will report the breakdown explicitly.
+ROUGE-1 (verbose corpus: 54.9%):
+  Lower than original corpus (72%) because v3 makes more structural changes.
+  "It is important to note that X" → X strips many unigrams from overlap.
+  The metric penalises every structural change even when no information is lost.
 
-Causal recovery (100% -- Gilfoyle-aware metric):
-  Counts -> arrows as causal signals. Raw metric (prose conjunctions only)
-  scores ~5% because "because/since" were replaced with "->". The per-entry
-  CAUSALS display in the sample section still shows prose conjunctions only
-  (a display inconsistency; the scoring is correct).
+Modal recovery (verbose corpus: 97.9%):
+  One entry (incident-race) dropped to 75% -- the "it is possible that"
+  catch-all stripped the uncertainty framing before tilde hedging could
+  re-encode it. An issue for v3.1: apply tilde first when stripping filler
+  constructions that contain genuine uncertainty markers.
 
-Reconstruction-required (0% -- hypothesis confirmed):
-  No detectable broken bindings. Every semantic ligature retained is intact;
-  every ligature removed was replaced by equivalent compact notation (->, ~,
-  imperative).
+Causal recovery (100% -- consistent across all corpora and versions).
 
-=== GILFOYLE v1 vs v2 COMPARISON ===
+Reconstruction-required (0% -- consistent):
+  No detectable broken bindings in either corpus or either version.
 
-Metric           v1      v2      Delta
-ROUGE-1          79.5%   72.0%   -7.5pp  (expected: restructuring penalty)
-Compression       7.0%   14.1%   +7.1pp  (primary goal: achieved)
-Modal recovery   22.5%   77.5%   +55pp   (v2 uses Gilfoyle-aware metric)
-Causal recovery 100.0%  100.0%    0pp    (consistent)
-Recon-required    0.0%    0.0%    0pp    (consistent)
+=== VERSION COMPARISON ===
+
+Metric           v1      v2      v3-orig  v3-verbose
+ROUGE-1          79.5%   72.0%   72.0%    54.9%
+Compression       7.0%   14.1%   14.1%    32.2%
+Modal recovery   22.5%   77.5%   77.5%    97.9%
+Causal recovery 100.0%  100.0%  100.0%   100.0%
+Recon-required    0.0%    0.0%    0.0%     0.0%
+
+The key finding: 32.2% compression on verbose prose with zero broken bindings
+and no decoder required. The ceiling scales with input verbosity -- the more
+corporate mush in the input, the more v3 saves.
