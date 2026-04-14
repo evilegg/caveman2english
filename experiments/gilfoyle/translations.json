@@ -400,6 +400,216 @@
       "business_english": "The following action items have been identified: add monitoring for pool exhaustion, configure alerts for connection counts, update the runbook with pool sizing guidelines.",
       "gilfoyle": "- [ ] Add monitoring for pool exhaustion\n- [ ] Configure alerts for conn counts\n- [ ] Update runbook with pool sizing guidelines",
       "note": "parallel action items → GFM task list"
+    },
+    {
+      "id": "verbose-connective-event-that",
+      "category": "verbose_connective",
+      "business_english": "in the event that an exception is thrown",
+      "gilfoyle": "if exception thrown",
+      "note": "'in the event that' → 'if'; copula deletion removes 'is'"
+    },
+    {
+      "id": "verbose-connective-due-to-fact",
+      "category": "verbose_connective",
+      "business_english": "due to the fact that each request opens a new connection",
+      "gilfoyle": "because each req opens new conn",
+      "note": "'due to the fact that' → 'because'; then causation restructuring fires"
+    },
+    {
+      "id": "verbose-connective-as-a-result",
+      "category": "verbose_connective",
+      "business_english": "as a result of this, the pool is exhausted",
+      "gilfoyle": "→ pool exhausted",
+      "note": "'as a result of this' → '→'; copula deleted"
+    },
+    {
+      "id": "verbose-connective-with-respect",
+      "category": "verbose_connective",
+      "business_english": "with respect to the remediation of this issue",
+      "gilfoyle": "re: remediation",
+      "note": "'with respect to' → 're:'; nominalisation stripped"
+    },
+    {
+      "id": "verbose-connective-it-is-case",
+      "category": "verbose_connective",
+      "business_english": "it is the case that the token is missing",
+      "gilfoyle": "Token missing",
+      "note": "'it is the case that' → strip; copula deleted"
+    },
+    {
+      "id": "verbose-connective-it-is-important",
+      "category": "verbose_connective",
+      "business_english": "it is important to note that the configuration must be updated",
+      "gilfoyle": "Must update cfg",
+      "note": "'it is important to note that' → strip; 'you must' → 'Must'"
+    },
+    {
+      "id": "verbose-connective-point-in-time",
+      "category": "verbose_connective",
+      "business_english": "at this point in time, the root cause is unknown",
+      "gilfoyle": "Root cause unknown",
+      "note": "'at this point in time' → strip; copula deleted"
+    },
+    {
+      "id": "verbose-connective-for-purpose",
+      "category": "verbose_connective",
+      "business_english": "for the purpose of ensuring connections are released",
+      "gilfoyle": "to ensure conns released",
+      "note": "'for the purpose of' → 'to'"
+    },
+    {
+      "id": "verbose-connective-gives-rise",
+      "category": "verbose_connective",
+      "business_english": "this gives rise to a cascading failure",
+      "gilfoyle": "→ cascading failure",
+      "note": "'gives rise to' → '→'"
+    },
+    {
+      "id": "verbose-connective-in-the-near-future",
+      "category": "verbose_connective",
+      "business_english": "this will be addressed in the near future",
+      "gilfoyle": "Will fix soon",
+      "note": "'in the near future' → 'soon'"
+    },
+    {
+      "id": "genitive-pool-exhaustion",
+      "category": "genitive",
+      "business_english": "the exhaustion of the connection pool",
+      "gilfoyle": "conn pool exhaustion",
+      "note": "'exhaustion of the X' → 'X exhaustion' (nominalised form + known tech noun)"
+    },
+    {
+      "id": "genitive-server-config",
+      "category": "genitive",
+      "business_english": "the configuration of the server",
+      "gilfoyle": "server config",
+      "note": "'configuration of the X' → 'X config' via genitive inversion + abbreviation"
+    },
+    {
+      "id": "genitive-component-behavior",
+      "category": "genitive",
+      "business_english": "the behavior of the component",
+      "gilfoyle": "component behavior",
+      "note": "'behavior of the X' → 'X behavior'"
+    },
+    {
+      "id": "genitive-restricted",
+      "category": "genitive",
+      "business_english": "the failure of the team",
+      "gilfoyle": "the failure of the team",
+      "note": "'team' not in tech noun list → NO inversion (avoids 'team failure' semantic drift)"
+    },
+    {
+      "id": "nominalisation-configuring",
+      "category": "nominalisation",
+      "business_english": "the configuration of the timeout",
+      "gilfoyle": "configuring tmo",
+      "note": "'the configuration of X' → 'configuring X'; then abbreviation fires"
+    },
+    {
+      "id": "nominalisation-exhausting",
+      "category": "nominalisation",
+      "business_english": "the exhaustion of the pool",
+      "gilfoyle": "exhausting pool",
+      "note": "'the exhaustion of X' → 'exhausting X'"
+    },
+    {
+      "id": "nominalisation-rejecting",
+      "category": "nominalisation",
+      "business_english": "the rejection of the request",
+      "gilfoyle": "rejecting req",
+      "note": "'the rejection of X' → 'rejecting X'; abbreviation applied"
+    },
+    {
+      "id": "nominalisation-implementing",
+      "category": "nominalisation",
+      "business_english": "the implementation of a circuit breaker",
+      "gilfoyle": "implementing circuit breaker",
+      "note": "'the implementation of X' → 'implementing X'"
+    },
+    {
+      "id": "quantifier-all-of-the",
+      "category": "quantifier",
+      "business_english": "all of the available connections were consumed",
+      "gilfoyle": "all available conns consumed",
+      "note": "'all of the' → 'all'; copula deleted; abbreviation"
+    },
+    {
+      "id": "quantifier-each-of-the",
+      "category": "quantifier",
+      "business_english": "each of the incoming requests was opening a new connection",
+      "gilfoyle": "each incoming req opens new conn",
+      "note": "'each of the' → 'each'; copula deleted"
+    },
+    {
+      "id": "quantifier-majority",
+      "category": "quantifier",
+      "business_english": "the majority of users experienced degradation",
+      "gilfoyle": "most users experienced degradation",
+      "note": "'the majority of' → 'most'"
+    },
+    {
+      "id": "quantifier-a-number-of",
+      "category": "quantifier",
+      "business_english": "a number of requests were failing",
+      "gilfoyle": "several reqs failing",
+      "note": "'a number of' → 'several'; copula deleted"
+    },
+    {
+      "id": "quantifier-a-subset-of",
+      "category": "quantifier",
+      "business_english": "a subset of users may have received outdated data",
+      "gilfoyle": "some users ~received outdated data",
+      "note": "'a subset of' → 'some'; 'may have' → tilde hedging"
+    },
+    {
+      "id": "quantifier-entirety",
+      "category": "quantifier",
+      "business_english": "the entirety of available connections were consumed",
+      "gilfoyle": "all available conns consumed",
+      "note": "'the entirety of' → 'all'"
+    },
+    {
+      "id": "verbose-verb-make-use-of",
+      "category": "verbose_verb",
+      "business_english": "the service makes use of a synchronous pattern",
+      "gilfoyle": "service uses sync pattern",
+      "note": "'makes use of' → 'uses'"
+    },
+    {
+      "id": "verbose-verb-have-impact",
+      "category": "verbose_verb",
+      "business_english": "this has an impact on overall latency",
+      "gilfoyle": "→ higher latency",
+      "note": "'has an impact on' → 'affects' or '→'; causal restructuring"
+    },
+    {
+      "id": "verbose-verb-carry-out",
+      "category": "verbose_verb",
+      "business_english": "the scheduler will carry out an eviction of the pod",
+      "gilfoyle": "scheduler runs pod eviction",
+      "note": "'carry out' → 'run'; genitive inversion: 'eviction of pod' → 'pod eviction'"
+    },
+    {
+      "id": "verbose-verb-put-in-place",
+      "category": "verbose_verb",
+      "business_english": "put in place a circuit breaker pattern",
+      "gilfoyle": "implement circuit breaker pattern",
+      "note": "'put in place' → 'implement'"
+    },
+    {
+      "id": "verbose-verb-take-into-account",
+      "category": "verbose_verb",
+      "business_english": "does not take into account the performance implications",
+      "gilfoyle": "ignores performance implications",
+      "note": "'does not take into account' → 'ignores' (or 'does not account for')"
+    },
+    {
+      "id": "verbose-verb-give-rise-to",
+      "category": "verbose_verb",
+      "business_english": "gave rise to a cascading failure",
+      "gilfoyle": "→ cascading failure",
+      "note": "'gave rise to' → '→'"
     }
   ]
 }
