@@ -260,7 +260,7 @@ const NOMINAL_TO_GERUND: Record<string, string> = {
 
 // "the configuration of tmo" → "configuring tmo"
 // Pattern: (the|a) NOMINAL of (the|a)? NOUN
-const NOMINALISATION_RE = /\b(?:the\s+|a\s+)(\w+(?:tion|ment|tion|ure|age|ance|ence))\s+of\s+(?:the\s+|a\s+)?(\w+)\b/gi;
+const NOMINALISATION_RE = /\b(?:the\s+|a\s+)(\w+(?:tion|ment|ure|age|ance|ence))\s+of\s+(?:the\s+|a\s+)?(\w+)\b/gi;
 
 function reverseNominalisation(s: string): string {
   return s.replace(NOMINALISATION_RE, (match, nominal, noun) => {

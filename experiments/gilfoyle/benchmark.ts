@@ -197,14 +197,15 @@ function runBenchmark() {
     const caveDecoded = expandDeterministic(caveEncoded, { fragmentLevel: 2 });
     const rfcDecoded = expandDeterministic(rfcEncoded, { fragmentLevel: 2 });
     const eoDecoded = decodeEsperanto(eoEncoded);
-    const gfDecoded = gfEncoded; // Gilfoyle is directly readable
+    const gfDecoded = gfEncoded;     // Gilfoyle v2 is directly readable — no decoder
+    const gfv3Decoded = gfv3Encoded; // Gilfoyle v3 is directly readable — no decoder
 
     // Score
     const caveR1 = rouge1(caveDecoded, entry.original);
     const rfcR1 = rouge1(rfcDecoded, entry.original);
     const eoR1 = rouge1(eoDecoded, entry.original);
     const gfR1 = rouge1(gfDecoded, entry.original);
-    const gfv3R1 = rouge1(gfv3Encoded, entry.original);
+    const gfv3R1 = rouge1(gfv3Decoded, entry.original);
 
     const caveComp = compressionRatio(entry.original, caveEncoded);
     const rfcComp = compressionRatio(entry.original, rfcEncoded);
