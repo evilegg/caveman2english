@@ -1,0 +1,405 @@
+{
+  "version": 1,
+  "description": "Gilfoyle dialect translation corpus. Business/verbose English → Gilfoyle encoded form. Used as the encoder rule source and as a standalone style guide for direct technical writing.",
+  "entries": [
+    {
+      "id": "hedge-might-cause",
+      "category": "hedging",
+      "business_english": "might cause a race condition",
+      "gilfoyle": "~race condition",
+      "note": "tilde prefix on the uncertain outcome; drop modal and causal verb"
+    },
+    {
+      "id": "hedge-may-result",
+      "category": "hedging",
+      "business_english": "may result in intermittent failures",
+      "gilfoyle": "~intermittent failures",
+      "note": "drop 'may result in', prefix outcome with ~"
+    },
+    {
+      "id": "hedge-likely-caused",
+      "category": "hedging",
+      "business_english": "likely caused by missing error handling",
+      "gilfoyle": "~caused by missing err handling",
+      "note": "drop 'likely', prefix with ~"
+    },
+    {
+      "id": "hedge-probably",
+      "category": "hedging",
+      "business_english": "this is probably related to the cache TTL",
+      "gilfoyle": "~cache TTL related",
+      "note": "strip 'this is probably related to the'"
+    },
+    {
+      "id": "hedge-possibly",
+      "category": "hedging",
+      "business_english": "this might be a timing issue",
+      "gilfoyle": "~timing issue",
+      "note": "sentence-initial 'This might be' → '~'"
+    },
+    {
+      "id": "hedge-could-indicate",
+      "category": "hedging",
+      "business_english": "this could indicate a memory leak",
+      "gilfoyle": "~memory leak",
+      "note": "'could indicate' → ~"
+    },
+    {
+      "id": "hedge-appears",
+      "category": "hedging",
+      "business_english": "this appears to be caused by a deadlock",
+      "gilfoyle": "~deadlock",
+      "note": "'appears to be caused by' → ~"
+    },
+    {
+      "id": "hedge-seems",
+      "category": "hedging",
+      "business_english": "the issue seems to be in the auth middleware",
+      "gilfoyle": "~auth mw",
+      "note": "'the issue seems to be in' → ~ + abbreviated target"
+    },
+    {
+      "id": "hedge-may-want",
+      "category": "hedging",
+      "business_english": "you may want to increase the timeout",
+      "gilfoyle": "Increase tmo",
+      "note": "hedging theater stripped; imperative remains"
+    },
+    {
+      "id": "hedge-consider",
+      "category": "hedging",
+      "business_english": "you might want to consider using a mutex",
+      "gilfoyle": "Use mutex",
+      "note": "full hedge theater stripped; imperative remains"
+    },
+    {
+      "id": "causation-because",
+      "category": "causation",
+      "business_english": "the pool is exhausted because each request opens a new connection",
+      "gilfoyle": "Each req opens new conn → pool exhausted",
+      "note": "cause-first reorder; 'because' → '→'"
+    },
+    {
+      "id": "causation-since",
+      "category": "causation",
+      "business_english": "the token is invalid since the clock skew exceeds five minutes",
+      "gilfoyle": "Clock skew exceeds 5min → token invalid",
+      "note": "cause-first; 'since' → '→'; numeric normalised"
+    },
+    {
+      "id": "causation-therefore",
+      "category": "causation",
+      "business_english": "the cache is stale; therefore users see outdated data",
+      "gilfoyle": "Cache stale → users see outdated data",
+      "note": "copula deleted; 'therefore' → '→'"
+    },
+    {
+      "id": "causation-results-in",
+      "category": "causation",
+      "business_english": "calling the API in a tight loop results in rate limiting",
+      "gilfoyle": "Tight-loop API calls → rate limiting",
+      "note": "restructured for directness"
+    },
+    {
+      "id": "causation-leads-to",
+      "category": "causation",
+      "business_english": "not releasing the connection leads to pool exhaustion",
+      "gilfoyle": "Not releasing conn → pool exhausted",
+      "note": "negation preserved; 'leads to' → '→'"
+    },
+    {
+      "id": "causation-due-to",
+      "category": "causation",
+      "business_english": "the request fails due to an expired certificate",
+      "gilfoyle": "Expired cert → req fails",
+      "note": "cause-first; 'due to' → '→'"
+    },
+    {
+      "id": "passive-by-agent",
+      "category": "passive_voice",
+      "business_english": "the connection is closed by the server after thirty seconds",
+      "gilfoyle": "Server closes conn after 30s",
+      "note": "passive → active; numeric normalised"
+    },
+    {
+      "id": "passive-user-input",
+      "category": "passive_voice",
+      "business_english": "user input is interpolated directly into the query string",
+      "gilfoyle": "Interpolates user input directly into query string",
+      "note": "agent implicit (the code); copula deleted; active form"
+    },
+    {
+      "id": "passive-errors-swallowed",
+      "category": "passive_voice",
+      "business_english": "errors are swallowed silently when promises are not chained correctly",
+      "gilfoyle": "Errors swallowed silently when promises not chained correctly",
+      "note": "copula deleted; negation preserved"
+    },
+    {
+      "id": "passive-directive",
+      "category": "passive_voice",
+      "business_english": "avoid passive voice unless the agent is clearly irrelevant",
+      "gilfoyle": "Avoid passive voice unless agent clearly irrelevant",
+      "note": "directive for LLM: strip copula in passive when agent is irrelevant to the narrative"
+    },
+    {
+      "id": "passive-postmortem",
+      "category": "passive_voice",
+      "business_english": "mistakes were made during the deployment",
+      "gilfoyle": "[team] made mistakes during deployment",
+      "note": "assign agent; postmortem passive deliberately obscures accountability — name the agent"
+    },
+    {
+      "id": "passive-incident",
+      "category": "passive_voice",
+      "business_english": "an unexpected degradation was experienced by users",
+      "gilfoyle": "Users experienced degradation",
+      "note": "active; drop 'unexpected' (filler)"
+    },
+    {
+      "id": "passive-runtime",
+      "category": "passive_voice",
+      "business_english": "an exception is thrown when the value is null",
+      "gilfoyle": "Exception thrown when val null",
+      "note": "runtime agent obvious; copula deleted; abbreviations"
+    },
+    {
+      "id": "pleasantry-happy",
+      "category": "pleasantry",
+      "business_english": "I'd be happy to explain how this works",
+      "gilfoyle": "",
+      "note": "strip entirely"
+    },
+    {
+      "id": "pleasantry-note-that",
+      "category": "pleasantry",
+      "business_english": "note that this behavior is expected",
+      "gilfoyle": "This behavior expected",
+      "note": "strip 'note that'; copula deleted"
+    },
+    {
+      "id": "pleasantry-keep-in-mind",
+      "category": "pleasantry",
+      "business_english": "keep in mind that the default timeout is thirty seconds",
+      "gilfoyle": "Default tmo is 30s",
+      "note": "strip 'keep in mind that'; numeric normalised"
+    },
+    {
+      "id": "pleasantry-let-me",
+      "category": "pleasantry",
+      "business_english": "let me walk you through the solution",
+      "gilfoyle": "",
+      "note": "strip entirely; solution follows"
+    },
+    {
+      "id": "pleasantry-worth-noting",
+      "category": "pleasantry",
+      "business_english": "it is worth noting that this only affects production",
+      "gilfoyle": "Only affects prod",
+      "note": "strip preamble"
+    },
+    {
+      "id": "pleasantry-please-note",
+      "category": "pleasantry",
+      "business_english": "please note that you will need to restart the server",
+      "gilfoyle": "Restart server",
+      "note": "strip preamble; imperative"
+    },
+    {
+      "id": "copula-being",
+      "category": "copula",
+      "business_english": "the connection pool is being exhausted",
+      "gilfoyle": "Conn pool exhausted",
+      "note": "'is being' + past participle → past participle"
+    },
+    {
+      "id": "copula-simple",
+      "category": "copula",
+      "business_english": "the token is missing",
+      "gilfoyle": "Token missing",
+      "note": "'is' + predicate adjective → predicate adjective"
+    },
+    {
+      "id": "copula-broken",
+      "category": "copula",
+      "business_english": "the authentication flow is broken",
+      "gilfoyle": "Auth flow broken",
+      "note": "copula deleted; abbreviation applied"
+    },
+    {
+      "id": "copula-occurring",
+      "category": "copula",
+      "business_english": "the error is occurring on every request",
+      "gilfoyle": "Err occurring on every req",
+      "note": "copula deleted; abbreviations"
+    },
+    {
+      "id": "copula-gerund",
+      "category": "copula",
+      "business_english": "the server is sending requests in parallel",
+      "gilfoyle": "Server sending reqs in parallel",
+      "note": "copula deleted"
+    },
+    {
+      "id": "copula-stale",
+      "category": "copula",
+      "business_english": "the cache entries are stale",
+      "gilfoyle": "Cache entries stale",
+      "note": "copula deleted"
+    },
+    {
+      "id": "copula-blocked",
+      "category": "copula",
+      "business_english": "the event loop is blocked by synchronous parsing",
+      "gilfoyle": "Sync parsing → event loop blocked",
+      "note": "cause-first reorder; copula deleted"
+    },
+    {
+      "id": "copula-expired",
+      "category": "copula",
+      "business_english": "the JWT token is expired",
+      "gilfoyle": "JWT token expired",
+      "note": "copula deleted"
+    },
+    {
+      "id": "infinitive-in-order-to",
+      "category": "infinitive_bloat",
+      "business_english": "in order to ensure connections are always released",
+      "gilfoyle": "ensuring conns always released",
+      "note": "'in order to ensure' → 'ensuring'"
+    },
+    {
+      "id": "infinitive-to-make-sure",
+      "category": "infinitive_bloat",
+      "business_english": "to make sure the token is set correctly",
+      "gilfoyle": "ensuring token set correctly",
+      "note": "'to make sure' → 'ensuring'"
+    },
+    {
+      "id": "infinitive-so-that",
+      "category": "infinitive_bloat",
+      "business_english": "restart the server so that the changes take effect",
+      "gilfoyle": "Restart server → changes take effect",
+      "note": "'so that' → '→'"
+    },
+    {
+      "id": "infinitive-even-when",
+      "category": "infinitive_bloat",
+      "business_english": "even when an error occurs",
+      "gilfoyle": "even on err",
+      "note": "'even when' → 'even on'; abbreviation"
+    },
+    {
+      "id": "infinitive-to-prevent",
+      "category": "infinitive_bloat",
+      "business_english": "in order to prevent unbounded growth",
+      "gilfoyle": "preventing unbounded growth",
+      "note": "'in order to prevent' → 'preventing'"
+    },
+    {
+      "id": "infinitive-to-avoid",
+      "category": "infinitive_bloat",
+      "business_english": "in order to avoid a race condition",
+      "gilfoyle": "avoiding race condition",
+      "note": "'in order to avoid' → 'avoiding'; article stripped"
+    },
+    {
+      "id": "obligation-must",
+      "category": "obligation",
+      "business_english": "you must use parameterized queries",
+      "gilfoyle": "Must use parameterized queries",
+      "note": "drop subject; keep 'must' — real obligation"
+    },
+    {
+      "id": "obligation-cannot",
+      "category": "obligation",
+      "business_english": "you cannot use the wildcard origin in production",
+      "gilfoyle": "Cannot use wildcard origin in prod",
+      "note": "drop subject; keep 'cannot' — hard constraint"
+    },
+    {
+      "id": "obligation-required",
+      "category": "obligation",
+      "business_english": "it is required that you configure the timeout",
+      "gilfoyle": "Must configure tmo",
+      "note": "'it is required that you' → 'Must'"
+    },
+    {
+      "id": "obligation-should-technical",
+      "category": "obligation",
+      "business_english": "you should use a mutex to protect shared state",
+      "gilfoyle": "Use mutex to protect shared state",
+      "note": "technical 'should' → imperative (social softening stripped)"
+    },
+    {
+      "id": "corporate-unexpected-degradation",
+      "category": "corporate_mush",
+      "business_english": "we experienced an unexpected degradation in service quality",
+      "gilfoyle": "Service degraded",
+      "note": "strip 'unexpected' (filler); active; strip 'in service quality'"
+    },
+    {
+      "id": "corporate-impacted",
+      "category": "corporate_mush",
+      "business_english": "this issue may have impacted a subset of users",
+      "gilfoyle": "~affected some users",
+      "note": "'may have impacted' → '~affected'; 'subset of' → 'some'"
+    },
+    {
+      "id": "corporate-take-offline",
+      "category": "corporate_mush",
+      "business_english": "we will need to take the service offline",
+      "gilfoyle": "Must take service offline",
+      "note": "'we will need to' → 'Must'"
+    },
+    {
+      "id": "corporate-at-this-time",
+      "category": "corporate_mush",
+      "business_english": "we are not able to confirm the root cause at this time",
+      "gilfoyle": "Root cause unknown",
+      "note": "strip corporate hedge; state the fact directly"
+    },
+    {
+      "id": "corporate-learnings",
+      "category": "corporate_mush",
+      "business_english": "we have identified several learnings from this incident",
+      "gilfoyle": "Incident findings:",
+      "note": "'learnings' is not a word; 'identified' → implied by colon"
+    },
+    {
+      "id": "postmortem-passive-mistakes",
+      "category": "postmortem",
+      "business_english": "mistakes were made during the rollout",
+      "gilfoyle": "[oncall] made mistakes during rollout",
+      "note": "name the agent; postmortem passive is accountability avoidance"
+    },
+    {
+      "id": "postmortem-was-not-caught",
+      "category": "postmortem",
+      "business_english": "the regression was not caught by the test suite",
+      "gilfoyle": "Test suite missed regression",
+      "note": "active; agent is 'test suite'"
+    },
+    {
+      "id": "postmortem-contributing-factor",
+      "category": "postmortem",
+      "business_english": "a contributing factor was the lack of monitoring",
+      "gilfoyle": "Missing monitoring → failure undetected",
+      "note": "causal structure made explicit"
+    },
+    {
+      "id": "postmortem-timeline",
+      "category": "postmortem",
+      "business_english": "the incident was resolved after approximately forty-five minutes",
+      "gilfoyle": "Resolved after ~45min",
+      "note": "tilde for approximation; numeric normalised"
+    },
+    {
+      "id": "postmortem-action-items",
+      "category": "postmortem",
+      "business_english": "The following action items have been identified: add monitoring for pool exhaustion, configure alerts for connection counts, update the runbook with pool sizing guidelines.",
+      "gilfoyle": "- [ ] Add monitoring for pool exhaustion\n- [ ] Configure alerts for conn counts\n- [ ] Update runbook with pool sizing guidelines",
+      "note": "parallel action items → GFM task list"
+    }
+  ]
+}
