@@ -55,4 +55,25 @@ describe("rule toggling via disableRules", () => {
     });
     expect(result).toContain("OAuth2");
   });
+
+  it("tasklist rule converts imperative pairs by default", () => {
+    const input = "Wrap the call.\nAdd logging.";
+    const result = expandDeterministic(input);
+    expect(result).toContain("- [ ]");
+  });
+
+  it("tasklist rule can be disabled via disableRules", () => {
+    const input = "Wrap the call.\nAdd logging.";
+    const result = expandDeterministic(input, {
+      disableRules: new Set(["tasklist"]),
+    });
+    expect(result).not.toContain("- [ ]");
+  });
+
+  it("tasklistMinRun option is respected", () => {
+    const input = "Wrap the call.\nAdd logging.";
+    // minRun=3 means a pair should NOT be converted
+    const result = expandDeterministic(input, { tasklistMinRun: 3 });
+    expect(result).not.toContain("- [ ]");
+  });
 });

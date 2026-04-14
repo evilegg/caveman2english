@@ -20,6 +20,8 @@ export interface ExpandOptions {
   disableRules: Set<string>;
   /** Extra abbreviations merged on top of the built-in dictionary. */
   extraAbbreviations: Record<string, string>;
+  /** Minimum consecutive imperative sentences to trigger GFM task list (default: 2). */
+  tasklistMinRun: number;
 }
 
 export interface Rule {
@@ -37,4 +39,5 @@ export interface UserConfig {
   ollamaUrl?: string;
   expand?: boolean;
   expandThreshold?: number;
+  tasklistMinRun?: number;
 }

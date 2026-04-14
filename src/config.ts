@@ -37,5 +37,6 @@ export function mergeConfig(
       ...(userConfig.extraAbbreviations ?? {}),
       ...(cliOpts.extraAbbreviations ?? {}),
     },
+    tasklistMinRun: cliOpts.tasklistMinRun ?? userConfig.tasklistMinRun ?? 2,
   };
 }

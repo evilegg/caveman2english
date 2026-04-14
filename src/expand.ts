@@ -21,7 +21,7 @@ function buildRules(opts?: Partial<ExpandOptions>): Rule[] {
     punctuationRule,
     ventilateRule,
     // tasklist fires after ventilate so each sentence is already on its own line
-    createTasklistRule(),
+    createTasklistRule({ minRun: opts?.tasklistMinRun ?? 2 }),
   ];
 
   return all.filter((r) => !disabled.has(r.name));

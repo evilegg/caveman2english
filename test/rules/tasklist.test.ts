@@ -29,8 +29,10 @@ describe("createTasklistRule — core conversion", () => {
     const out = rule.apply(input);
     expect(out).toContain("- [ ] Wrap the call");
     expect(out).toContain("- [ ] Add logging");
-    // Trailing period should not appear inside the checkbox text
-    expect(out).not.toMatch(/- \[ \].*\./);
+    // Each task item line should not end with a period
+    for (const line of out.split("\n").filter((l) => l.startsWith("- [ ]"))) {
+      expect(line).not.toMatch(/\.$/);
+    }
   });
 });
 
@@ -158,6 +160,15 @@ describe("createTasklistRule — blank line handling", () => {
     expect(out).toContain("Auth is broken.");
     expect(out).toContain("Check the token");
     expect(out).not.toContain("- [ ]");
+  });
+
+  it("two imperatives separated by a blank line each form single-item runs — stay as prose", () => {
+    // Each imperative is in its own paragraph; neither meets minRun=2.
+    const input = "Wrap the call.\n\nAdd logging.";
+    const out = rule.apply(input);
+    expect(out).not.toContain("- [ ]");
+    expect(out).toContain("Wrap the call.");
+    expect(out).toContain("Add logging.");
   });
 
   it("inserts blank line before task list when following prose", () => {
