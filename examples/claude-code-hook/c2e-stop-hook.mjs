@@ -26,6 +26,14 @@
  *   arrows) are skipped — they're already readable prose and translation
  *   would be a no-op.  Threshold is configurable via C2E_SKIP_THRESHOLD
  *   (default: 15 words).  Set to 0 to always translate.
+ *
+ * Clarification suggestion:
+ *   After translation, if the expanded text is still dense (many verbless
+ *   sentences survived expansion, or the original was heavily abbreviated),
+ *   a pre-drafted clarification request is printed to stderr.
+ *   The user decides whether to send it — the hook never injects turns.
+ *   Thresholds: C2E_CLARIFY_FRAGMENT_THRESHOLD (default: 3),
+ *               C2E_CLARIFY_ABBREV_RATIO (default: 0.3).
  */
 
 import { execSync } from "child_process";
@@ -151,6 +159,50 @@ function needsTranslation(text, threshold) {
   return { translate: true, reason: signals.join(", ") };
 }
 
+// ── Clarification suggestion ──────────────────────────────────────────────────
+
+/**
+ * Decide whether the response is still too dense to parse after c2e expansion.
+ *
+ * Runs AFTER translation, so it reflects post-expansion complexity.
+ * Uses two token-free structural signals:
+ *
+ *   1. Fragment density in the translated text: verbless sentences that survived
+ *      expansion indicate the response resisted c2e's fragment completion.
+ *   2. Abbreviation-per-word ratio in the original text: dense technical shorthand
+ *      that wasn't in the dict and passed through unchanged.
+ *
+ * Thresholds are configurable via env vars:
+ *   C2E_CLARIFY_FRAGMENT_THRESHOLD  (default: 3)
+ *   C2E_CLARIFY_ABBREV_RATIO        (default: 0.3)
+ *
+ * Returns { clarify: boolean, reason: string }.
+ */
+function needsClarification(originalText, translatedText, opts = {}) {
+  const { fragmentThreshold = 3, abbrevRatioThreshold = 0.3 } = opts;
+
+  const signals = [];
+
+  // Signal 1: verbless sentences that survived expansion
+  const postFragments = countFragments(translatedText);
+  if (postFragments >= fragmentThreshold) {
+    signals.push(`${postFragments} fragment${postFragments !== 1 ? "s" : ""} survived expansion`);
+  }
+
+  // Signal 2: abbreviation density in the original (unknown shorthand passed through)
+  const originalWords = originalText.trim().split(/\s+/).length;
+  if (originalWords > 0) {
+    const abbrevCount = countAbbreviations(originalText);
+    const ratio = abbrevCount / originalWords;
+    if (ratio >= abbrevRatioThreshold) {
+      signals.push(`abbreviation ratio ${Math.round(ratio * 100)}%`);
+    }
+  }
+
+  if (signals.length === 0) return { clarify: false, reason: "" };
+  return { clarify: true, reason: signals.join(", ") };
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 const raw = [];
@@ -205,6 +257,19 @@ process.stdin.on("end", () => {
 
     const divider = "─".repeat(60);
     process.stderr.write(`\n${divider}\n📖 Translation:\n${divider}\n${translated}\n`);
+
+    // Clarification suggestion — fires after translation, reflects post-expansion complexity
+    const fragThreshold = parseInt(process.env["C2E_CLARIFY_FRAGMENT_THRESHOLD"] ?? "3", 10);
+    const abbrevThreshold = parseFloat(process.env["C2E_CLARIFY_ABBREV_RATIO"] ?? "0.3");
+    const { clarify, reason } = needsClarification(content, translated, {
+      fragmentThreshold: fragThreshold,
+      abbrevRatioThreshold: abbrevThreshold,
+    });
+    if (clarify) {
+      process.stderr.write(
+        `[c2e] Dense response (${reason}). Send to clarify:\n> Can you walk me through that in plain English?\n`,
+      );
+    }
   } catch (err) {
     process.stderr.write(`[c2e-stop-hook] Translation failed: ${String(err)}\n`);
   }
