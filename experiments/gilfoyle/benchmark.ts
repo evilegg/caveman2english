@@ -10,6 +10,10 @@
  *
  * Metrics:
  *   ROUGE-1              unigram overlap with original
+ *   sn-ROUGE-1           structure-normalised ROUGE-1 (Gilfoyle only):
+ *                        strips sentence-initial deontic modal prefixes
+ *                        ("you should", "you must", etc.) before scoring
+ *                        so imperative conversion is not penalised
  *   compression          character savings vs original
  *   modal recovery       fraction of uncertainty words preserved
  *   causal recovery      fraction of causal conjunctions preserved
@@ -28,7 +32,7 @@
 
 import { CORPUS } from "../fidelity/corpus.js";
 import { encodeCaveman, extractModals } from "../fidelity/encoder.js";
-import { rouge1, compressionRatio, modalRecovery } from "../fidelity/scorer.js";
+import { rouge1, compressionRatio, modalRecovery, structureNormalisedRouge1 } from "../fidelity/scorer.js";
 import { expandDeterministic } from "../../src/expand.js";
 import { encodeRFC } from "../rfc/encoder.js";
 import { encodeEsperanto } from "../esperanto/encoder.js";
@@ -179,7 +183,7 @@ function runBenchmark() {
     cave: { rouge: 0, comp: 0, modal: 0, causal: 0, recon: 0 },
     rfc: { rouge: 0, comp: 0, modal: 0, causal: 0, recon: 0 },
     eo: { rouge: 0, comp: 0, modal: 0, causal: 0, recon: 0 },
-    gf: { rouge: 0, comp: 0, modal: 0, causal: 0, recon: 0 },
+    gf: { rouge: 0, snRouge: 0, comp: 0, modal: 0, causal: 0, recon: 0 },
     gfv3: { rouge: 0, comp: 0, modal: 0, causal: 0, recon: 0 },
   };
   const n = CORPUS.length;
@@ -205,6 +209,7 @@ function runBenchmark() {
     const rfcR1 = rouge1(rfcDecoded, entry.original);
     const eoR1 = rouge1(eoDecoded, entry.original);
     const gfR1 = rouge1(gfDecoded, entry.original);
+    const gfSnR1 = structureNormalisedRouge1(gfDecoded, entry.original);
     const gfv3R1 = rouge1(gfv3Decoded, entry.original);
 
     const caveComp = compressionRatio(entry.original, caveEncoded);
@@ -250,6 +255,7 @@ function runBenchmark() {
     sums.eo.recon += eoRecon;
 
     sums.gf.rouge += gfR1;
+    sums.gf.snRouge += gfSnR1;
     sums.gf.comp += gfComp;
     sums.gf.modal += gfMR;
     sums.gf.causal += gfCR;
@@ -266,7 +272,7 @@ function runBenchmark() {
         `cave R1=${pct(caveR1)} comp=${pct(caveComp)} modal=${pct(caveMR)} causal=${pct(caveCR)} recon=${pct(caveRecon)} | ` +
         `rfc  R1=${pct(rfcR1)} comp=${pct(rfcComp)} modal=${pct(rfcMR)} causal=${pct(rfcCR)} recon=${pct(rfcRecon)} | ` +
         `eo   R1=${pct(eoR1)} comp=${pct(eoComp)} modal=${pct(eoMR)} causal=${pct(eoCR)} recon=${pct(eoRecon)} | ` +
-        `gf   R1=${pct(gfR1)} comp=${pct(gfComp)} modal=${pct(gfMR)} causal=${pct(gfCR)} recon=${pct(gfRecon)}`,
+        `gf   R1=${pct(gfR1)} snR1=${pct(gfSnR1)} comp=${pct(gfComp)} modal=${pct(gfMR)} causal=${pct(gfCR)} recon=${pct(gfRecon)}`,
     );
   }
 
@@ -281,12 +287,13 @@ function runBenchmark() {
   const caveAvg = avg(sums.cave);
   const rfcAvg = avg(sums.rfc);
   const eoAvg = avg(sums.eo);
-  const gfAvg = avg(sums.gf);
+  const gfAvgBase = avg(sums.gf);
+  const gfAvg = { ...gfAvgBase, snRouge: sums.gf.snRouge / n };
   const gfv3Avg = avg(sums.gfv3);
 
   console.log("\n=== GILFOYLE v2 vs GILFOYLE v3 — ORIGINAL CORPUS (REGRESSION CHECK) ===\n");
   console.log(
-    `Gilfoyle v2: ROUGE-1=${pct(gfAvg.rouge)}  comp=${pct(gfAvg.comp)}  modal=${pct(gfAvg.modal)}  causal=${pct(gfAvg.causal)}  recon=${pct(gfAvg.recon)}`,
+    `Gilfoyle v2: ROUGE-1=${pct(gfAvg.rouge)}  sn-ROUGE-1=${pct(gfAvg.snRouge)}  comp=${pct(gfAvg.comp)}  modal=${pct(gfAvg.modal)}  causal=${pct(gfAvg.causal)}  recon=${pct(gfAvg.recon)}`,
   );
   console.log(
     `Gilfoyle v3: ROUGE-1=${pct(gfv3Avg.rouge)}  comp=${pct(gfv3Avg.comp)}  modal=${pct(gfv3Avg.modal)}  causal=${pct(gfv3Avg.causal)}  recon=${pct(gfv3Avg.recon)}`,
@@ -298,7 +305,7 @@ function runBenchmark() {
     "cave=caveman+c2e  rfc=RFC+c2e  eo=Esperanto+decoder+c2e  gf=Gilfoyle (direct read)",
   );
   console.log(
-    "R1=ROUGE-1  comp=compression  modal=modal-recovery  causal=causal-recovery  recon=reconstruction-required\n",
+    "R1=ROUGE-1  snR1=sn-ROUGE-1(Gilfoyle only)  comp=compression  modal=modal-recovery  causal=causal-recovery  recon=reconstruction-required\n",
   );
 
   for (const row of rows) console.log(row);
@@ -314,7 +321,7 @@ function runBenchmark() {
     `Esperanto+c2e: ROUGE-1=${pct(eoAvg.rouge)}  comp=${pct(eoAvg.comp)}  modal=${pct(eoAvg.modal)}  causal=${pct(eoAvg.causal)}  recon=${pct(eoAvg.recon)}`,
   );
   console.log(
-    `Gilfoyle:      ROUGE-1=${pct(gfAvg.rouge)}  comp=${pct(gfAvg.comp)}  modal=${pct(gfAvg.modal)}  causal=${pct(gfAvg.causal)}  recon=${pct(gfAvg.recon)}`,
+    `Gilfoyle:      ROUGE-1=${pct(gfAvg.rouge)}  sn-ROUGE-1=${pct(gfAvg.snRouge)}  comp=${pct(gfAvg.comp)}  modal=${pct(gfAvg.modal)}  causal=${pct(gfAvg.causal)}  recon=${pct(gfAvg.recon)}`,
   );
 
   console.log("\n=== SAMPLE ROUND-TRIPS ===\n");

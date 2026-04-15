@@ -93,6 +93,62 @@ export function averageScores(scores: Score[]): Score {
   };
 }
 
+// ── Structure-normalised ROUGE-1 ─────────────────────────────────────────────
+//
+// Standard ROUGE-1 penalises lossless restructuring: Gilfoyle converts
+// "You should wrap every database call" → "Wrap every database call."
+// This drops "you" and "should" from the unigram set even though no
+// information was lost — the obligation is still conveyed by the imperative.
+//
+// Structure-normalised ROUGE-1 strips sentence-initial deontic modal
+// constructions from both hypothesis and reference before scoring, so
+// imperative conversion does not count as a unigram loss.
+
+/** Sentence-initial modal prefixes that become imperatives in Gilfoyle output. */
+const MODAL_PREFIX_RE =
+  /^you\s+(?:should\s+feel\s+free\s+to|might\s+want\s+to|should|must|need\s+to|ought\s+to)\s+/i;
+
+/**
+ * Strip sentence-initial deontic modal prefix and lowercase the resulting
+ * first word.  Applied to both hypothesis and reference before scoring.
+ *
+ * "You should wrap every call." → "wrap every call."
+ * "You need to add a try-finally block." → "add a try-finally block."
+ */
+function normaliseSentenceForRouge(sentence: string): string {
+  const stripped = sentence.replace(MODAL_PREFIX_RE, "");
+  if (stripped === sentence) return sentence;
+  // Lowercase the now-initial word (it may have been the verb after "You should")
+  return stripped.charAt(0).toLowerCase() + stripped.slice(1);
+}
+
+/**
+ * Normalise text for structure-normalised ROUGE-1 scoring.
+ * Splits on sentence boundaries, normalises each sentence, rejoins.
+ */
+export function normaliseForRouge(text: string): string {
+  return text
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => normaliseSentenceForRouge(s.trim()))
+    .filter(Boolean)
+    .join(" ");
+}
+
+/**
+ * Structure-normalised ROUGE-1 F1.
+ *
+ * Identical to `rouge1` except both inputs are normalised first via
+ * `normaliseForRouge`.  Use this metric when comparing systems that
+ * convert deontic modals to imperatives (e.g. Gilfoyle) against
+ * systems that preserve the full modal phrase.
+ */
+export function structureNormalisedRouge1(
+  hypothesis: string,
+  reference: string,
+): number {
+  return rouge1(normaliseForRouge(hypothesis), normaliseForRouge(reference));
+}
+
 export function formatScore(s: Score): string {
   const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
   return (
