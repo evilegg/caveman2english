@@ -80,6 +80,8 @@ compression ratios are lower than real-world caveman savings.
 | Metric                  | Definition                                                              |
 | ----------------------- | ----------------------------------------------------------------------- |
 | ROUGE-1 F1              | Unigram overlap (F1) between the decoded output and the original prose  |
+| sn-ROUGE-1              | Structure-normalised ROUGE-1: strips sentence-initial deontic modal     |
+|                         | prefixes from both sides before scoring (Gilfoyle only; see below)      |
 | Compression             | `1 - len(encoded) / len(original)` (character count)                    |
 | Modal recovery          | Fraction of original modal verbs present in the decoded output          |
 | Causal recovery         | Fraction of original causal conjunctions present in the decoded output  |
@@ -90,6 +92,27 @@ Modal and causal recovery specifically test the semantic ligature claim.
 Reconstruction-required is a direct measure of cognitive overhead: a sentence
 that scores positive on this metric requires the reader to infer the missing
 half of a binding.
+
+**Structure-normalised ROUGE-1 (sn-ROUGE-1):** standard ROUGE-1 penalises
+lossless imperative conversion.
+Gilfoyle converts "You should wrap every database call" → "Wrap every database
+call", dropping "you" and "should" from the unigram set even though no
+information was lost — the obligation is still conveyed by the imperative form.
+sn-ROUGE-1 strips sentence-initial deontic modal prefixes ("you should", "you
+must", "you need to", "you ought to", "you should feel free to", "you might
+want to") from both hypothesis and reference before computing ROUGE-1, so
+imperative conversion does not count as a unigram loss.
+
+Gilfoyle sn-ROUGE-1 = 73.3% vs standard ROUGE-1 = 72.0% on the 20-entry corpus.
+The 1.3-point gain shows modal/imperative conversion accounts for a small share
+of the gap against RFC (84.7%).
+The remaining gap is driven by Gilfoyle's abbreviation vocabulary: "DB", "req",
+"conn" in the output don't match "database", "request", "connection" in the
+original at the unigram level.
+RFC+c2e outputs are post-processed through the c2e expander which resolves these
+abbreviations; Gilfoyle is intentionally left as direct-read output.
+A future normalisation step — expanding abbreviations in both hypothesis and
+reference before scoring — would close most of the remaining gap.
 
 ### Reproducibility
 
@@ -110,13 +133,13 @@ under `dist-exp/`.
 
 ## Results
 
-| System        | ROUGE-1   | Compression | Modal recovery | Causal recovery | Recon-required |
-| ------------- | --------- | ----------- | -------------- | --------------- | -------------- |
-| Caveman+c2e   | 83.0%     | **14.2%**   | 92.5%          | 100.0%          | 0.0%†          |
-| UST+decoder   | 80.7%     | 4.7%        | 85.0%          | —               | —              |
-| RFC+c2e       | **84.7%** | 3.5%        | **100.0%**     | **100.0%**      | 0.0%†          |
-| Esperanto+c2e | 84.4%     | 3.0%        | **100.0%**     | **100.0%**      | 0.0%†          |
-| Gilfoyle v2   | 72.0%     | **14.1%**   | 77.5%‡         | **100.0%**      | **0.0%**       |
+| System        | ROUGE-1   | sn-ROUGE-1 | Compression | Modal recovery | Causal recovery | Recon-required |
+| ------------- | --------- | ---------- | ----------- | -------------- | --------------- | -------------- |
+| Caveman+c2e   | 83.0%     | —          | **14.2%**   | 92.5%          | 100.0%          | 0.0%†          |
+| UST+decoder   | 80.7%     | —          | 4.7%        | 85.0%          | —               | —              |
+| RFC+c2e       | **84.7%** | —          | 3.5%        | **100.0%**     | **100.0%**      | 0.0%†          |
+| Esperanto+c2e | 84.4%     | —          | 3.0%        | **100.0%**     | **100.0%**      | 0.0%†          |
+| Gilfoyle v2   | 72.0%     | 73.3%      | **14.1%**   | 77.5%‡         | **100.0%**      | **0.0%**       |
 
 † The reconstruction-required metric uses sentence-boundary heuristics.
 The synthetic encoders do not produce orphaned modals at sentence boundaries,
@@ -205,7 +228,10 @@ ROUGE-1 72.0% — lower than v1's 79.5% because more aggressive restructuring
 (cause-first reorder, copula deletion, participial compression) reduces unigram
 overlap further; the metric penalises every structural change even when no
 information is lost.
-Issue #8 (structure-normalised ROUGE-1) will produce a fairer score.
+sn-ROUGE-1 73.3% — strips sentence-initial deontic modal prefixes before
+scoring, recovering 1.3% of the gap.
+The remaining gap vs RFC (84.7%) is driven by abbreviation vocabulary mismatch
+rather than restructuring; see the sn-ROUGE-1 metric description above.
 
 The key result: Gilfoyle v2 is the only system that achieves caveman-level
 compression _and_ zero broken bindings _and_ no decoder requirement.
