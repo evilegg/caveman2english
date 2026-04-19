@@ -1,35 +1,60 @@
 === GILFOYLE v2 vs ESPERANTO vs RFC vs CAVEMAN BENCHMARK ===
 
 cave=caveman+c2e  rfc=RFC+c2e  eo=Esperanto+decoder+c2e  gf=Gilfoyle v2 (direct read)
-R1=ROUGE-1  comp=compression  modal=modal-recovery  causal=causal-recovery  recon=reconstruction-required
+R1=ROUGE-1  snR1=sn-ROUGE-1(gf only)  comp=compression  modal=modal-recovery  causal=causal-recovery  recon=reconstruction-required
 
-react-rerender         cave R1=78.3% comp=14.8% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=81.7% comp=3.7% modal=100.0% causal=100.0% recon=0.0% | eo   R1=80.4% comp=3.7% modal=100.0% causal=100.0% recon=0.0% | gf   R1=67.4% comp=14.8% modal=100.0% causal=100.0% recon=0.0%
-auth-token             cave R1=81.8% comp=20.5% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=83.6% comp=0.0% modal=100.0% causal=100.0% recon=0.0% | eo   R1=83.6% comp=0.0% modal=100.0% causal=100.0% recon=0.0% | gf   R1=68.8% comp=17.9% modal=100.0% causal=100.0% recon=0.0%
-db-pool                cave R1=84.9% comp=11.7% modal=50.0% causal=100.0% recon=0.0% | rfc  R1=86.8% comp=5.0% modal=100.0% causal=100.0% recon=0.0% | eo   R1=85.7% comp=5.0% modal=100.0% causal=100.0% recon=0.0% | gf   R1=62.6% comp=20.0% modal=100.0% causal=100.0% recon=0.0%
-race-condition         cave R1=86.0% comp=14.6% modal=50.0% causal=100.0% recon=0.0% | rfc  R1=89.7% comp=6.3% modal=100.0% causal=100.0% recon=0.0% | eo   R1=89.7% comp=6.3% modal=100.0% causal=100.0% recon=0.0% | gf   R1=78.0% comp=18.8% modal=100.0% causal=100.0% recon=0.0%
-memory-leak            cave R1=87.6% comp=10.4% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=92.1% comp=4.2% modal=100.0% causal=100.0% recon=0.0% | eo   R1=89.9% comp=4.2% modal=100.0% causal=100.0% recon=0.0% | gf   R1=79.1% comp=12.5% modal=0.0% causal=100.0% recon=0.0%
-cache-invalidation     cave R1=84.6% comp=10.2% modal=50.0% causal=100.0% recon=0.0% | rfc  R1=87.6% comp=1.7% modal=100.0% causal=100.0% recon=0.0% | eo   R1=87.6% comp=-5.1% modal=100.0% causal=100.0% recon=0.0% | gf   R1=76.3% comp=16.9% modal=50.0% causal=100.0% recon=0.0%
-cors                   cave R1=78.7% comp=16.7% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=80.0% comp=1.9% modal=100.0% causal=100.0% recon=0.0% | eo   R1=80.0% comp=1.9% modal=100.0% causal=100.0% recon=0.0% | gf   R1=71.9% comp=7.4% modal=100.0% causal=100.0% recon=0.0%
-jwt-expiry             cave R1=79.6% comp=14.5% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=80.8% comp=3.2% modal=100.0% causal=100.0% recon=0.0% | eo   R1=80.8% comp=3.2% modal=100.0% causal=100.0% recon=0.0% | gf   R1=68.7% comp=12.9% modal=100.0% causal=100.0% recon=0.0%
-event-loop             cave R1=88.9% comp=12.7% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=90.0% comp=5.5% modal=100.0% causal=100.0% recon=0.0% | eo   R1=90.0% comp=5.5% modal=100.0% causal=100.0% recon=0.0% | gf   R1=76.1% comp=21.8% modal=0.0% causal=100.0% recon=0.0%
-promise-chain          cave R1=82.4% comp=15.0% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=83.5% comp=5.0% modal=100.0% causal=100.0% recon=0.0% | eo   R1=83.5% comp=5.0% modal=100.0% causal=100.0% recon=0.0% | gf   R1=78.4% comp=13.3% modal=100.0% causal=100.0% recon=0.0%
-typescript-narrowing   cave R1=79.6% comp=20.6% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=80.7% comp=4.4% modal=100.0% causal=100.0% recon=0.0% | eo   R1=80.7% comp=4.4% modal=100.0% causal=100.0% recon=0.0% | gf   R1=69.6% comp=14.7% modal=100.0% causal=100.0% recon=0.0%
-sql-injection          cave R1=88.7% comp=9.3% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=89.8% comp=1.9% modal=100.0% causal=100.0% recon=0.0% | eo   R1=89.8% comp=1.9% modal=100.0% causal=100.0% recon=0.0% | gf   R1=76.6% comp=11.1% modal=100.0% causal=100.0% recon=0.0%
-docker-network         cave R1=77.9% comp=17.0% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=79.5% comp=2.1% modal=100.0% causal=100.0% recon=0.0% | eo   R1=79.5% comp=2.1% modal=100.0% causal=100.0% recon=0.0% | gf   R1=72.0% comp=8.5% modal=100.0% causal=100.0% recon=0.0%
-rate-limit             cave R1=88.9% comp=13.3% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=89.9% comp=1.7% modal=100.0% causal=100.0% recon=0.0% | eo   R1=89.9% comp=1.7% modal=100.0% causal=100.0% recon=0.0% | gf   R1=68.7% comp=18.3% modal=100.0% causal=100.0% recon=0.0%
-npm-conflict           cave R1=84.1% comp=9.7% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=86.2% comp=3.2% modal=100.0% causal=100.0% recon=0.0% | eo   R1=86.2% comp=0.0% modal=100.0% causal=100.0% recon=0.0% | gf   R1=77.4% comp=8.1% modal=100.0% causal=100.0% recon=0.0%
-websocket              cave R1=78.5% comp=15.4% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=79.6% comp=7.7% modal=100.0% causal=100.0% recon=0.0% | eo   R1=77.8% comp=7.7% modal=100.0% causal=100.0% recon=0.0% | gf   R1=62.1% comp=21.5% modal=100.0% causal=100.0% recon=0.0%
-git-conflict           cave R1=80.9% comp=17.9% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=80.9% comp=1.8% modal=100.0% causal=100.0% recon=0.0% | eo   R1=80.9% comp=1.8% modal=100.0% causal=100.0% recon=0.0% | gf   R1=74.7% comp=7.1% modal=0.0% causal=100.0% recon=0.0%
-k8s-pod                cave R1=82.0% comp=13.6% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=83.2% comp=1.7% modal=100.0% causal=100.0% recon=0.0% | eo   R1=83.2% comp=1.7% modal=100.0% causal=100.0% recon=0.0% | gf   R1=70.1% comp=10.2% modal=0.0% causal=100.0% recon=0.0%
-css-specificity        cave R1=82.0% comp=15.3% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=83.2% comp=6.8% modal=100.0% causal=100.0% recon=0.0% | eo   R1=83.2% comp=6.8% modal=100.0% causal=100.0% recon=0.0% | gf   R1=70.8% comp=15.3% modal=100.0% causal=100.0% recon=0.0%
-wasm-memory            cave R1=85.5% comp=11.3% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=86.2% comp=1.6% modal=100.0% causal=100.0% recon=0.0% | eo   R1=86.2% comp=1.6% modal=100.0% causal=100.0% recon=0.0% | gf   R1=69.9% comp=11.3% modal=100.0% causal=100.0% recon=0.0%
+react-rerender         cave R1=78.3% comp=14.8% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=81.7% comp=3.7% modal=100.0% causal=100.0% recon=0.0% | eo   R1=80.4% comp=3.7% modal=100.0% causal=100.0% recon=0.0% | gf   R1=67.4% snR1=69.0% comp=14.8% modal=100.0% causal=100.0% recon=0.0%
+auth-token             cave R1=81.8% comp=20.5% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=83.6% comp=0.0% modal=100.0% causal=100.0% recon=0.0% | eo   R1=83.6% comp=0.0% modal=100.0% causal=100.0% recon=0.0% | gf   R1=68.8% snR1=71.0% comp=17.9% modal=100.0% causal=100.0% recon=0.0%
+db-pool                cave R1=84.9% comp=11.7% modal=50.0% causal=100.0% recon=0.0% | rfc  R1=86.8% comp=5.0% modal=100.0% causal=100.0% recon=0.0% | eo   R1=85.7% comp=5.0% modal=100.0% causal=100.0% recon=0.0% | gf   R1=62.6% snR1=63.9% comp=20.0% modal=100.0% causal=100.0% recon=0.0%
+race-condition         cave R1=86.0% comp=14.6% modal=50.0% causal=100.0% recon=0.0% | rfc  R1=89.7% comp=6.3% modal=100.0% causal=100.0% recon=0.0% | eo   R1=89.7% comp=6.3% modal=100.0% causal=100.0% recon=0.0% | gf   R1=78.0% snR1=80.0% comp=18.8% modal=100.0% causal=100.0% recon=0.0%
+memory-leak            cave R1=87.6% comp=10.4% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=92.1% comp=4.2% modal=100.0% causal=100.0% recon=0.0% | eo   R1=89.9% comp=4.2% modal=100.0% causal=100.0% recon=0.0% | gf   R1=79.1% snR1=81.0% comp=12.5% modal=0.0% causal=100.0% recon=0.0%
+cache-invalidation     cave R1=84.6% comp=10.2% modal=50.0% causal=100.0% recon=0.0% | rfc  R1=87.6% comp=1.7% modal=100.0% causal=100.0% recon=0.0% | eo   R1=87.6% comp=-5.1% modal=100.0% causal=100.0% recon=0.0% | gf   R1=76.3% snR1=77.9% comp=16.9% modal=50.0% causal=100.0% recon=0.0%
+cors                   cave R1=78.7% comp=16.7% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=80.0% comp=1.9% modal=100.0% causal=100.0% recon=0.0% | eo   R1=80.0% comp=1.9% modal=100.0% causal=100.0% recon=0.0% | gf   R1=71.9% snR1=71.9% comp=7.4% modal=100.0% causal=100.0% recon=0.0%
+jwt-expiry             cave R1=79.6% comp=14.5% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=80.8% comp=3.2% modal=100.0% causal=100.0% recon=0.0% | eo   R1=80.8% comp=3.2% modal=100.0% causal=100.0% recon=0.0% | gf   R1=68.7% snR1=70.1% comp=12.9% modal=100.0% causal=100.0% recon=0.0%
+event-loop             cave R1=88.9% comp=12.7% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=90.0% comp=5.5% modal=100.0% causal=100.0% recon=0.0% | eo   R1=90.0% comp=5.5% modal=100.0% causal=100.0% recon=0.0% | gf   R1=76.1% snR1=77.8% comp=21.8% modal=0.0% causal=100.0% recon=0.0%
+promise-chain          cave R1=82.4% comp=15.0% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=83.5% comp=5.0% modal=100.0% causal=100.0% recon=0.0% | eo   R1=83.5% comp=5.0% modal=100.0% causal=100.0% recon=0.0% | gf   R1=78.4% snR1=78.0% comp=13.3% modal=100.0% causal=100.0% recon=0.0%
+typescript-narrowing   cave R1=79.6% comp=20.6% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=80.7% comp=4.4% modal=100.0% causal=100.0% recon=0.0% | eo   R1=80.7% comp=4.4% modal=100.0% causal=100.0% recon=0.0% | gf   R1=69.6% snR1=70.9% comp=14.7% modal=100.0% causal=100.0% recon=0.0%
+sql-injection          cave R1=88.7% comp=9.3% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=89.8% comp=1.9% modal=100.0% causal=100.0% recon=0.0% | eo   R1=89.8% comp=1.9% modal=100.0% causal=100.0% recon=0.0% | gf   R1=76.6% snR1=76.1% comp=11.1% modal=100.0% causal=100.0% recon=0.0%
+docker-network         cave R1=77.9% comp=17.0% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=79.5% comp=2.1% modal=100.0% causal=100.0% recon=0.0% | eo   R1=79.5% comp=2.1% modal=100.0% causal=100.0% recon=0.0% | gf   R1=72.0% snR1=74.0% comp=8.5% modal=100.0% causal=100.0% recon=0.0%
+rate-limit             cave R1=88.9% comp=13.3% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=89.9% comp=1.7% modal=100.0% causal=100.0% recon=0.0% | eo   R1=89.9% comp=1.7% modal=100.0% causal=100.0% recon=0.0% | gf   R1=68.7% snR1=70.1% comp=18.3% modal=100.0% causal=100.0% recon=0.0%
+npm-conflict           cave R1=84.1% comp=9.7% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=86.2% comp=3.2% modal=100.0% causal=100.0% recon=0.0% | eo   R1=86.2% comp=0.0% modal=100.0% causal=100.0% recon=0.0% | gf   R1=77.4% snR1=78.8% comp=8.1% modal=100.0% causal=100.0% recon=0.0%
+websocket              cave R1=78.5% comp=15.4% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=79.6% comp=7.7% modal=100.0% causal=100.0% recon=0.0% | eo   R1=77.8% comp=7.7% modal=100.0% causal=100.0% recon=0.0% | gf   R1=62.1% snR1=63.4% comp=21.5% modal=100.0% causal=100.0% recon=0.0%
+git-conflict           cave R1=80.9% comp=17.9% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=80.9% comp=1.8% modal=100.0% causal=100.0% recon=0.0% | eo   R1=80.9% comp=1.8% modal=100.0% causal=100.0% recon=0.0% | gf   R1=74.7% snR1=76.4% comp=7.1% modal=0.0% causal=100.0% recon=0.0%
+k8s-pod                cave R1=82.0% comp=13.6% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=83.2% comp=1.7% modal=100.0% causal=100.0% recon=0.0% | eo   R1=83.2% comp=1.7% modal=100.0% causal=100.0% recon=0.0% | gf   R1=70.1% snR1=71.6% comp=10.2% modal=0.0% causal=100.0% recon=0.0%
+css-specificity        cave R1=82.0% comp=15.3% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=83.2% comp=6.8% modal=100.0% causal=100.0% recon=0.0% | eo   R1=83.2% comp=6.8% modal=100.0% causal=100.0% recon=0.0% | gf   R1=70.8% snR1=72.3% comp=15.3% modal=100.0% causal=100.0% recon=0.0%
+wasm-memory            cave R1=85.5% comp=11.3% modal=100.0% causal=100.0% recon=0.0% | rfc  R1=86.2% comp=1.6% modal=100.0% causal=100.0% recon=0.0% | eo   R1=86.2% comp=1.6% modal=100.0% causal=100.0% recon=0.0% | gf   R1=69.9% snR1=71.3% comp=11.3% modal=100.0% causal=100.0% recon=0.0%
 
 === AVERAGES (original 20-entry corpus) ===
 
 Caveman+c2e:   ROUGE-1=83.0%  comp=14.2%  modal=92.5%  causal=100.0%  recon=0.0%
 RFC+c2e:       ROUGE-1=84.7%  comp=3.5%   modal=100.0% causal=100.0%  recon=0.0%
 Esperanto+c2e: ROUGE-1=84.4%  comp=3.0%   modal=100.0% causal=100.0%  recon=0.0%
-Gilfoyle v2:   ROUGE-1=72.0%  comp=14.1%  modal=77.5%  causal=100.0%  recon=0.0%
+Gilfoyle v2:   ROUGE-1=72.0%  sn-ROUGE-1=73.3%  comp=14.1%  modal=77.5%  causal=100.0%  recon=0.0%
+
+=== SN-ROUGE-1 FINDING ===
+
+sn-ROUGE-1 strips sentence-initial deontic modal prefixes ("you should", "you must",
+"you need to", "you ought to", "you should feel free to", "you might want to") from
+both hypothesis and reference before scoring.  This removes the unigram penalty for
+imperative conversion ("You should wrap X" → "Wrap X").
+
+Gilfoyle sn-ROUGE-1 = 73.3% vs standard ROUGE-1 = 72.0%.
+
+The 1.3-point gain shows modal stripping accounts for a small fraction of the gap.
+The remaining gap vs RFC (84.7%) is driven by Gilfoyle's abbreviation vocabulary:
+"DB", "req", "conn" in the output don't match "database", "request", "connection"
+in the original at the unigram level.  RFC+c2e outputs pass through the c2e expander
+which expands these abbreviations, but Gilfoyle is intentionally left as direct-read
+output with no post-processing step.
+
+Two interpretations:
+  1. Gilfoyle's ROUGE-1 gap is mostly a vocabulary mismatch artefact (abbreviations),
+     not a restructuring artefact (modal/imperative conversion).
+  2. sn-ROUGE-1 is still a more accurate measure of restructuring fidelity than
+     standard ROUGE-1, even though it does not close the full gap.
+
+A third normalisation step -- expanding abbreviations in both hypothesis and reference
+before scoring -- would likely close most of the remaining gap.  This is a v3.1 candidate.
 
 === GILFOYLE v3 — VERBOSE CORPUS (12 entries) ===
 
@@ -56,8 +81,8 @@ Gilfoyle v3: ROUGE-1=54.9%  comp=32.2%  modal=97.9%   causal=100.0%  recon=0.0%
 
 === REGRESSION CHECK (v3 on original corpus) ===
 
-Gilfoyle v2: ROUGE-1=72.0%  comp=14.1%  modal=77.5%  causal=100.0%  recon=0.0%
-Gilfoyle v3: ROUGE-1=72.0%  comp=14.1%  modal=77.5%  causal=100.0%  recon=0.0%
+Gilfoyle v2: ROUGE-1=72.0%  sn-ROUGE-1=73.3%  comp=14.1%  modal=77.5%  causal=100.0%  recon=0.0%
+Gilfoyle v3: ROUGE-1=72.0%                     comp=14.1%  modal=77.5%  causal=100.0%  recon=0.0%
 
 v3 pre-pass is neutral on clean corpus -- no regression.
 
@@ -80,6 +105,10 @@ ROUGE-1 (verbose corpus: 54.9%):
   "It is important to note that X" → X strips many unigrams from overlap.
   The metric penalises every structural change even when no information is lost.
 
+sn-ROUGE-1 (original corpus: 73.3%):
+  Strips deontic modal prefixes before scoring.  Accounts for 1.3% of the gap.
+  The remaining gap vs RFC is mostly abbreviation vocabulary mismatch (see above).
+
 Modal recovery (verbose corpus: 97.9%):
   One entry (incident-race) dropped to 75% -- the "it is possible that"
   catch-all stripped the uncertainty framing before tilde hedging could
@@ -93,12 +122,12 @@ Reconstruction-required (0% -- consistent):
 
 === VERSION COMPARISON ===
 
-Metric           v1      v2      v3-orig  v3-verbose
-ROUGE-1          79.5%   72.0%   72.0%    54.9%
-Compression       7.0%   14.1%   14.1%    32.2%
-Modal recovery   22.5%   77.5%   77.5%    97.9%
-Causal recovery 100.0%  100.0%  100.0%   100.0%
-Recon-required    0.0%    0.0%    0.0%     0.0%
+Metric           v1      v2       v2(sn)  v3-orig  v3-verbose
+ROUGE-1          79.5%   72.0%   73.3%    72.0%    54.9%
+Compression       7.0%   14.1%   --       14.1%    32.2%
+Modal recovery   22.5%   77.5%   --       77.5%    97.9%
+Causal recovery 100.0%  100.0%  --       100.0%   100.0%
+Recon-required    0.0%    0.0%   --        0.0%     0.0%
 
 The key finding: 32.2% compression on verbose prose with zero broken bindings
 and no decoder required. The ceiling scales with input verbosity -- the more
