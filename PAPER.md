@@ -138,7 +138,7 @@ The compression/fidelity tradeoff explored here has no direct equivalent in the 
 ### 3.6 caveman
 
 The caveman prompt-engineering technique [JuliusBrussee, 2024] instructs LLMs to produce terse output using arrow notation, abbreviations, and fragment style.
-A March 2026 study found caveman brevity improved task accuracy by 26 points on coding tasks [citation forthcoming], establishing that compressed output is useful.
+Preliminary results from the caveman repository (March 2026) found brevity improved task accuracy substantially on coding tasks, establishing that compressed output is useful.
 That work addresses the _encoding_ side.
 This paper addresses the complementary _decoding_ side: what information is preserved and recoverable, and at what cognitive cost.
 
@@ -243,7 +243,7 @@ npm run benchmark:gilfoyle    # Gilfoyle v2 experiment
 ```
 
 Each command compiles TypeScript with `tsconfig.experiments.json` and runs the benchmark script under `dist-exp/`.
-Results are written to `experiments/<name>/results.txt`.
+Results are written to `experiments/<name>/results.txt` (or `experiments/fidelity/results.json` for the Caveman+c2e baseline, which uses a structured JSON format).
 The scorer implementation is in `experiments/fidelity/scorer.ts`; the modal disposition and sn-ROUGE-1 implementations are in the same file.
 
 ## 5. Results
