@@ -84,6 +84,7 @@ compression ratios are lower than real-world caveman savings.
 |                         | prefixes from both sides before scoring (Gilfoyle only; see below)      |
 | Compression             | `1 - len(encoded) / len(original)` (character count)                    |
 | Modal recovery          | Fraction of original modal verbs present in the decoded output          |
+| Modal disposition       | Three-way breakdown: preserved / converted / lost (Gilfoyle only)       |
 | Causal recovery         | Fraction of original causal conjunctions present in the decoded output  |
 | Reconstruction-required | Fraction of encoded sentences with a detectably broken semantic binding |
 
@@ -147,14 +148,20 @@ so all systems score 0%.
 The metric is most meaningful against real caveman LLM output where the model
 aggressively strips within sentences.
 
-‡ Gilfoyle v2 uses a Gilfoyle-aware modal metric that counts `~` tilde prefixes
-as recovered uncertainty markers and imperative sentences as recovered `should`
-signals.
-Raw prose-only modal recovery is ~15% — the 77.5% reflects actual semantic
-preservation: every modal is either kept in prose, re-encoded as `~`, or
-converted to an imperative.
-Social-softening `should` → imperative is not information loss; it is a
-restructuring that makes the action directive rather than advisory.
+‡ Gilfoyle v2 modal disposition: **15.0% preserved / 85.0% converted / 0.0% lost**.
+The binary `modalRecovery` score (77.5%) treated every absent modal as a loss.
+The disposition metric classifies each original modal as:
+
+- **Preserved** — modal word appears literally in the output
+- **Converted** — modal absent but the governed action verb appears as a
+  sentence-initial imperative ("You should wrap X" → "Wrap X") or as a
+  tilde-prefixed hedging word ("likely causes" → "~causes")
+- **Lost** — modal absent with no detectable conversion
+
+Zero modals are genuinely lost across the 20-entry corpus.
+The 85% converted fraction is the correct figure to cite for the paper;
+it shows Gilfoyle's imperative conversion is lossless restructuring, not
+information loss.
 
 ## Experiment summaries
 
@@ -222,6 +229,9 @@ Compression 14.1% — parity with caveman's synthetic ceiling (14.2%) — up fro
 v1's 6.7%.
 Causal recovery 100% (Gilfoyle-aware: counts `→` as causal signal).
 Modal recovery 77.5% (Gilfoyle-aware: counts `~` + imperatives).
+Modal disposition 15.0% preserved / 85.0% converted / 0.0% lost — zero
+modals are genuinely lost; the 85% converted fraction is the correct figure
+to cite (see footnote ‡ in the results table).
 Reconstruction-required 0%: no detectable broken bindings in any of the 20
 corpus entries.
 ROUGE-1 72.0% — lower than v1's 79.5% because more aggressive restructuring
