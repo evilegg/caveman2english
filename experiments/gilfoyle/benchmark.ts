@@ -32,7 +32,7 @@
 
 import { CORPUS } from "../fidelity/corpus.js";
 import { encodeCaveman, extractModals } from "../fidelity/encoder.js";
-import { rouge1, compressionRatio, modalRecovery, structureNormalisedRouge1 } from "../fidelity/scorer.js";
+import { rouge1, compressionRatio, modalRecovery, structureNormalisedRouge1, modalDisposition } from "../fidelity/scorer.js";
 import { expandDeterministic } from "../../src/expand.js";
 import { encodeRFC } from "../rfc/encoder.js";
 import { encodeEsperanto } from "../esperanto/encoder.js";
@@ -183,7 +183,7 @@ function runBenchmark() {
     cave: { rouge: 0, comp: 0, modal: 0, causal: 0, recon: 0 },
     rfc: { rouge: 0, comp: 0, modal: 0, causal: 0, recon: 0 },
     eo: { rouge: 0, comp: 0, modal: 0, causal: 0, recon: 0 },
-    gf: { rouge: 0, snRouge: 0, comp: 0, modal: 0, causal: 0, recon: 0 },
+    gf: { rouge: 0, snRouge: 0, comp: 0, modal: 0, causal: 0, recon: 0, dispPreserved: 0, dispConverted: 0, dispLost: 0 },
     gfv3: { rouge: 0, comp: 0, modal: 0, causal: 0, recon: 0 },
   };
   const n = CORPUS.length;
@@ -223,6 +223,7 @@ function runBenchmark() {
     const eoMR = modalRecovery(eoDecoded, entry.original);
     const gfMR = modalRecoveryGilfoyle(gfEncoded, entry.original);
     const gfv3MR = modalRecoveryGilfoyle(gfv3Encoded, entry.original);
+    const gfDisp = modalDisposition(gfDecoded, entry.original);
 
     const caveCR = causalRecovery(caveDecoded, entry.original);
     const rfcCR = causalRecovery(rfcDecoded, entry.original);
@@ -260,6 +261,9 @@ function runBenchmark() {
     sums.gf.modal += gfMR;
     sums.gf.causal += gfCR;
     sums.gf.recon += gfRecon;
+    sums.gf.dispPreserved += gfDisp.preserved;
+    sums.gf.dispConverted += gfDisp.converted;
+    sums.gf.dispLost += gfDisp.lost;
 
     sums.gfv3.rouge += gfv3R1;
     sums.gfv3.comp += gfv3Comp;
@@ -288,12 +292,21 @@ function runBenchmark() {
   const rfcAvg = avg(sums.rfc);
   const eoAvg = avg(sums.eo);
   const gfAvgBase = avg(sums.gf);
-  const gfAvg = { ...gfAvgBase, snRouge: sums.gf.snRouge / n };
+  const gfAvg = {
+    ...gfAvgBase,
+    snRouge: sums.gf.snRouge / n,
+    dispPreserved: sums.gf.dispPreserved / n,
+    dispConverted: sums.gf.dispConverted / n,
+    dispLost: sums.gf.dispLost / n,
+  };
   const gfv3Avg = avg(sums.gfv3);
 
   console.log("\n=== GILFOYLE v2 vs GILFOYLE v3 — ORIGINAL CORPUS (REGRESSION CHECK) ===\n");
   console.log(
     `Gilfoyle v2: ROUGE-1=${pct(gfAvg.rouge)}  sn-ROUGE-1=${pct(gfAvg.snRouge)}  comp=${pct(gfAvg.comp)}  modal=${pct(gfAvg.modal)}  causal=${pct(gfAvg.causal)}  recon=${pct(gfAvg.recon)}`,
+  );
+  console.log(
+    `             modal-disposition: ${pct(gfAvg.dispPreserved)} preserved / ${pct(gfAvg.dispConverted)} converted / ${pct(gfAvg.dispLost)} lost`,
   );
   console.log(
     `Gilfoyle v3: ROUGE-1=${pct(gfv3Avg.rouge)}  comp=${pct(gfv3Avg.comp)}  modal=${pct(gfv3Avg.modal)}  causal=${pct(gfv3Avg.causal)}  recon=${pct(gfv3Avg.recon)}`,
@@ -322,6 +335,9 @@ function runBenchmark() {
   );
   console.log(
     `Gilfoyle:      ROUGE-1=${pct(gfAvg.rouge)}  sn-ROUGE-1=${pct(gfAvg.snRouge)}  comp=${pct(gfAvg.comp)}  modal=${pct(gfAvg.modal)}  causal=${pct(gfAvg.causal)}  recon=${pct(gfAvg.recon)}`,
+  );
+  console.log(
+    `               modal-disposition: ${pct(gfAvg.dispPreserved)} preserved / ${pct(gfAvg.dispConverted)} converted / ${pct(gfAvg.dispLost)} lost`,
   );
 
   console.log("\n=== SAMPLE ROUND-TRIPS ===\n");

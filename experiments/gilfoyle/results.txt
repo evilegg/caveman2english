@@ -30,6 +30,7 @@ Caveman+c2e:   ROUGE-1=83.0%  comp=14.2%  modal=92.5%  causal=100.0%  recon=0.0%
 RFC+c2e:       ROUGE-1=84.7%  comp=3.5%   modal=100.0% causal=100.0%  recon=0.0%
 Esperanto+c2e: ROUGE-1=84.4%  comp=3.0%   modal=100.0% causal=100.0%  recon=0.0%
 Gilfoyle v2:   ROUGE-1=72.0%  sn-ROUGE-1=73.3%  comp=14.1%  modal=77.5%  causal=100.0%  recon=0.0%
+               modal-disposition: 15.0% preserved / 85.0% converted / 0.0% lost
 
 === SN-ROUGE-1 FINDING ===
 
@@ -82,6 +83,7 @@ Gilfoyle v3: ROUGE-1=54.9%  comp=32.2%  modal=97.9%   causal=100.0%  recon=0.0%
 === REGRESSION CHECK (v3 on original corpus) ===
 
 Gilfoyle v2: ROUGE-1=72.0%  sn-ROUGE-1=73.3%  comp=14.1%  modal=77.5%  causal=100.0%  recon=0.0%
+             modal-disposition: 15.0% preserved / 85.0% converted / 0.0% lost
 Gilfoyle v3: ROUGE-1=72.0%                     comp=14.1%  modal=77.5%  causal=100.0%  recon=0.0%
 
 v3 pre-pass is neutral on clean corpus -- no regression.
@@ -108,6 +110,13 @@ ROUGE-1 (verbose corpus: 54.9%):
 sn-ROUGE-1 (original corpus: 73.3%):
   Strips deontic modal prefixes before scoring.  Accounts for 1.3% of the gap.
   The remaining gap vs RFC is mostly abbreviation vocabulary mismatch (see above).
+
+Modal disposition (original corpus: 15.0% preserved / 85.0% converted / 0.0% lost):
+  The binary modal recovery score (77.5%) was misleading: it treated every
+  absent modal as a loss.  The disposition metric shows that 85% of "missing"
+  modals were intentional imperative conversions ("should wrap" -> "Wrap"),
+  and zero modals were genuinely lost.  The paper should cite disposition, not
+  binary recovery, for Gilfoyle.
 
 Modal recovery (verbose corpus: 97.9%):
   One entry (incident-race) dropped to 75% -- the "it is possible that"
